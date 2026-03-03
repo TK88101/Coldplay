@@ -1,0 +1,500 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		247FD5F1BD02FA2E6621DBD8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF87F3F745D8533C90FB8229 /* ContentView.swift */; };
+		281EF2C0CFBF80FCA4E1DB58 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1C4839D8C0F5F16A96EE182 /* Assets.xcassets */; };
+		51F650CC415322D318FAF030 /* ColdplayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B22536E7992B459D1F7595 /* ColdplayApp.swift */; };
+		6A93DD9B80FA574E43DB1D02 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC19C401745E4E129983834 /* CalendarView.swift */; };
+		6CA738D536CCCD6417EFFDC8 /* AttendanceRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BFDD6BB92BE3D7E55F02A3 /* AttendanceRecord.swift */; };
+		7BE30D5468DE2125BE1EF113 /* PersistenceServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE1A796416473AD044886E7 /* PersistenceServiceTests.swift */; };
+		9305F24E1F22C3A0E8498630 /* MarkWorkIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC105452D04F4AD2BB9E859 /* MarkWorkIntent.swift */; };
+		93B036A26DAA84B24C7910AD /* MarkRestIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F621EDE4FEE82DF82906A6 /* MarkRestIntent.swift */; };
+		9410D765F3C060F77EFCDCAC /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E456E43B88276612DD41A5C /* StatsView.swift */; };
+		A09E3378752459B3D83733F1 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B8A517DCE9B5AECFFE522E /* TodayView.swift */; };
+		A0E5B24A22F9E4716AA5BFF8 /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E087F4D42DBBFD765F2AB67 /* PersistenceService.swift */; };
+		AE0AEF9E8D26E40CF31314FA /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7049B88A72D297112914E67E /* CalendarService.swift */; };
+		C4F42E69616C1F05871EE1AA /* AttendanceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DCC2E16A6AC979FF68EB35 /* AttendanceStore.swift */; };
+		E3B6181DE4BA81ADA1E51964 /* AttendanceShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 476F00D16301E8308AC099DD /* AttendanceShortcuts.swift */; };
+		F94460DA82D36266B3C9EDAC /* AttendanceStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58BBEB8EDE2BB4FCEF5119C /* AttendanceStoreTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7B1A01C897F0C53030202D52 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 13F2CDA98458DF134E4A6998 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9F3610D20FBE28E133DE8A91;
+			remoteInfo = Coldplay;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0E456E43B88276612DD41A5C /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		12BFDD6BB92BE3D7E55F02A3 /* AttendanceRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceRecord.swift; sourceTree = "<group>"; };
+		218DB925147CA567F46B6C14 /* ColdplayTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ColdplayTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		22DCC2E16A6AC979FF68EB35 /* AttendanceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceStore.swift; sourceTree = "<group>"; };
+		3CE1A796416473AD044886E7 /* PersistenceServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceServiceTests.swift; sourceTree = "<group>"; };
+		42D01955387A88D270E9B9CD /* Coldplay.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Coldplay.entitlements; sourceTree = "<group>"; };
+		476F00D16301E8308AC099DD /* AttendanceShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceShortcuts.swift; sourceTree = "<group>"; };
+		5DC19C401745E4E129983834 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		6AC105452D04F4AD2BB9E859 /* MarkWorkIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkWorkIntent.swift; sourceTree = "<group>"; };
+		7049B88A72D297112914E67E /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
+		8E087F4D42DBBFD765F2AB67 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceService.swift; sourceTree = "<group>"; };
+		91B8A517DCE9B5AECFFE522E /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		A3B22536E7992B459D1F7595 /* ColdplayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColdplayApp.swift; sourceTree = "<group>"; };
+		D1C4839D8C0F5F16A96EE182 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D58BBEB8EDE2BB4FCEF5119C /* AttendanceStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceStoreTests.swift; sourceTree = "<group>"; };
+		DF87F3F745D8533C90FB8229 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		E2F621EDE4FEE82DF82906A6 /* MarkRestIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkRestIntent.swift; sourceTree = "<group>"; };
+		F6EABAC3D3A6C4C35BD146C9 /* Coldplay.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Coldplay.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		09ED4D270F6A7AEE7E285467 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A3B22536E7992B459D1F7595 /* ColdplayApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		602AC86EADAAE2D636FF0431 /* ColdplayTests */ = {
+			isa = PBXGroup;
+			children = (
+				D58BBEB8EDE2BB4FCEF5119C /* AttendanceStoreTests.swift */,
+				3CE1A796416473AD044886E7 /* PersistenceServiceTests.swift */,
+			);
+			path = ColdplayTests;
+			sourceTree = "<group>";
+		};
+		675AA27F3D329FA188008C05 = {
+			isa = PBXGroup;
+			children = (
+				BBAF4A1EC4579B84BBC3B1D3 /* Coldplay */,
+				602AC86EADAAE2D636FF0431 /* ColdplayTests */,
+				D32A63D8D1E7F7CB8FF49571 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		685B48D4DF271B13268AA0BB /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				476F00D16301E8308AC099DD /* AttendanceShortcuts.swift */,
+				E2F621EDE4FEE82DF82906A6 /* MarkRestIntent.swift */,
+				6AC105452D04F4AD2BB9E859 /* MarkWorkIntent.swift */,
+			);
+			path = Intents;
+			sourceTree = "<group>";
+		};
+		9A74622C902C59A3C27CFF90 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				7049B88A72D297112914E67E /* CalendarService.swift */,
+				8E087F4D42DBBFD765F2AB67 /* PersistenceService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B72F13A263FA69FA8389BA07 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5DC19C401745E4E129983834 /* CalendarView.swift */,
+				DF87F3F745D8533C90FB8229 /* ContentView.swift */,
+				0E456E43B88276612DD41A5C /* StatsView.swift */,
+				91B8A517DCE9B5AECFFE522E /* TodayView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		BA81D1AA3FFC0B9CFB90FD98 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				12BFDD6BB92BE3D7E55F02A3 /* AttendanceRecord.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		BBAF4A1EC4579B84BBC3B1D3 /* Coldplay */ = {
+			isa = PBXGroup;
+			children = (
+				D1C4839D8C0F5F16A96EE182 /* Assets.xcassets */,
+				42D01955387A88D270E9B9CD /* Coldplay.entitlements */,
+				09ED4D270F6A7AEE7E285467 /* App */,
+				685B48D4DF271B13268AA0BB /* Intents */,
+				BA81D1AA3FFC0B9CFB90FD98 /* Models */,
+				9A74622C902C59A3C27CFF90 /* Services */,
+				D8E04CE1282D72D7810BD551 /* Store */,
+				B72F13A263FA69FA8389BA07 /* Views */,
+			);
+			path = Coldplay;
+			sourceTree = "<group>";
+		};
+		D32A63D8D1E7F7CB8FF49571 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F6EABAC3D3A6C4C35BD146C9 /* Coldplay.app */,
+				218DB925147CA567F46B6C14 /* ColdplayTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D8E04CE1282D72D7810BD551 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				22DCC2E16A6AC979FF68EB35 /* AttendanceStore.swift */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8D5EF1AE8763BEA7EFEE42FF /* ColdplayTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 69F76F18015C4C906AC434F2 /* Build configuration list for PBXNativeTarget "ColdplayTests" */;
+			buildPhases = (
+				AE15CA8FFF8937418A22060B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0C63E1BDD2B59310BBB224D5 /* PBXTargetDependency */,
+			);
+			name = ColdplayTests;
+			packageProductDependencies = (
+			);
+			productName = ColdplayTests;
+			productReference = 218DB925147CA567F46B6C14 /* ColdplayTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		9F3610D20FBE28E133DE8A91 /* Coldplay */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 85662CA453E33E49E0EBE855 /* Build configuration list for PBXNativeTarget "Coldplay" */;
+			buildPhases = (
+				F55952DE4A748AD831AB057B /* Sources */,
+				732F67859D070041B010742D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Coldplay;
+			packageProductDependencies = (
+			);
+			productName = Coldplay;
+			productReference = F6EABAC3D3A6C4C35BD146C9 /* Coldplay.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		13F2CDA98458DF134E4A6998 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1620;
+			};
+			buildConfigurationList = 3C59D0EA541FF7157CB2CBF0 /* Build configuration list for PBXProject "Coldplay" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 675AA27F3D329FA188008C05;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9F3610D20FBE28E133DE8A91 /* Coldplay */,
+				8D5EF1AE8763BEA7EFEE42FF /* ColdplayTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		732F67859D070041B010742D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				281EF2C0CFBF80FCA4E1DB58 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AE15CA8FFF8937418A22060B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F94460DA82D36266B3C9EDAC /* AttendanceStoreTests.swift in Sources */,
+				7BE30D5468DE2125BE1EF113 /* PersistenceServiceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F55952DE4A748AD831AB057B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6CA738D536CCCD6417EFFDC8 /* AttendanceRecord.swift in Sources */,
+				E3B6181DE4BA81ADA1E51964 /* AttendanceShortcuts.swift in Sources */,
+				C4F42E69616C1F05871EE1AA /* AttendanceStore.swift in Sources */,
+				AE0AEF9E8D26E40CF31314FA /* CalendarService.swift in Sources */,
+				6A93DD9B80FA574E43DB1D02 /* CalendarView.swift in Sources */,
+				51F650CC415322D318FAF030 /* ColdplayApp.swift in Sources */,
+				247FD5F1BD02FA2E6621DBD8 /* ContentView.swift in Sources */,
+				93B036A26DAA84B24C7910AD /* MarkRestIntent.swift in Sources */,
+				9305F24E1F22C3A0E8498630 /* MarkWorkIntent.swift in Sources */,
+				A0E5B24A22F9E4716AA5BFF8 /* PersistenceService.swift in Sources */,
+				9410D765F3C060F77EFCDCAC /* StatsView.swift in Sources */,
+				A09E3378752459B3D83733F1 /* TodayView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0C63E1BDD2B59310BBB224D5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9F3610D20FBE28E133DE8A91 /* Coldplay */;
+			targetProxy = 7B1A01C897F0C53030202D52 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		22FAAEBE33124D15C0ECBF6D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Coldplay/Coldplay.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Coldplay/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.personal.coldplay;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		26D629F8E11904109EDBD725 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Coldplay/Coldplay.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Coldplay/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.personal.coldplay;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		64B042DA8E35442D7C469585 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Coldplay/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		A19D36871DD5935E5E818496 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Coldplay/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		CDB067D8CC801E4E84722DF4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.personal.coldplay.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Coldplay.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Coldplay";
+			};
+			name = Release;
+		};
+		F072D0518E7B530B92300E01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.personal.coldplay.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Coldplay.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Coldplay";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3C59D0EA541FF7157CB2CBF0 /* Build configuration list for PBXProject "Coldplay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A19D36871DD5935E5E818496 /* Debug */,
+				64B042DA8E35442D7C469585 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		69F76F18015C4C906AC434F2 /* Build configuration list for PBXNativeTarget "ColdplayTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F072D0518E7B530B92300E01 /* Debug */,
+				CDB067D8CC801E4E84722DF4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		85662CA453E33E49E0EBE855 /* Build configuration list for PBXNativeTarget "Coldplay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				22FAAEBE33124D15C0ECBF6D /* Debug */,
+				26D629F8E11904109EDBD725 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 13F2CDA98458DF134E4A6998 /* Project object */;
+}
