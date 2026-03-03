@@ -9,7 +9,9 @@ final class CalendarService {
         EKEventStore.authorizationStatus(for: .event) == .fullAccess
     }
 
+    /// App 启动时调用，请求日历权限
     func requestAccess() async -> Bool {
+        guard !hasAccess else { return true }
         do {
             return try await store.requestFullAccessToEvents()
         } catch {
@@ -20,21 +22,20 @@ final class CalendarService {
 
     /// 获取或创建"考勤"专用日历
     private func attendanceCalendar() -> EKCalendar? {
-        // 先查找已有的"考勤"日历
         if let existing = store.calendars(for: .event).first(where: { $0.title == Self.calendarTitle }) {
             return existing
         }
 
-        // 创建新的"考勤"日历
         let calendar = EKCalendar(for: .event, eventStore: store)
         calendar.title = Self.calendarTitle
         calendar.cgColor = CGColor(red: 0.2, green: 0.5, blue: 1.0, alpha: 1.0)
 
-        // 选择本地或 iCloud 来源
-        if let source = store.sources.first(where: { $0.sourceType == .calDAV }),
-           source.title.contains("iCloud") {
+        // 优先 iCloud，其次本地
+        if let source = store.sources.first(where: { $0.sourceType == .calDAV && $0.title.contains("iCloud") }) {
             calendar.source = source
         } else if let source = store.sources.first(where: { $0.sourceType == .local }) {
+            calendar.source = source
+        } else if let source = store.sources.first(where: { $0.sourceType == .calDAV }) {
             calendar.source = source
         } else {
             calendar.source = store.defaultCalendarForNewEvents?.source
@@ -45,20 +46,26 @@ final class CalendarService {
             return calendar
         } catch {
             print("Failed to create 考勤 calendar: \(error)")
-            return store.defaultCalendarForNewEvents
+            return nil
         }
     }
 
     /// 在"考勤"日历中创建/更新考勤事件，返回是否成功
     @discardableResult
     func syncRecord(_ record: AttendanceRecord) async -> Bool {
-        guard hasAccess else { return false }
+        // 如果没权限，先请求一次
+        if !hasAccess {
+            let granted = await requestAccess()
+            guard granted else { return false }
+        }
+
+        guard let calendar = attendanceCalendar() else { return false }
 
         // 先删除同一天的旧事件
-        removeEvents(on: record.normalizedDate)
+        removeEvents(on: record.normalizedDate, in: calendar)
 
         let event = EKEvent(eventStore: store)
-        event.calendar = attendanceCalendar()
+        event.calendar = calendar
 
         let cal = Calendar.current
 
@@ -94,18 +101,16 @@ final class CalendarService {
         }
     }
 
-    /// 删除某天的考勤事件（仅删除"考勤"日历中的）
-    func removeEvents(on date: Date) {
-        guard hasAccess else { return }
+    /// 删除某天的考勤事件
+    private func removeEvents(on date: Date, in calendar: EKCalendar) {
         let cal = Calendar.current
         let start = cal.startOfDay(for: date)
         guard let end = cal.date(byAdding: .day, value: 1, to: start) else { return }
 
-        let attendanceCal = attendanceCalendar().map { [$0] }
-        let predicate = store.predicateForEvents(withStart: start, end: end, calendars: attendanceCal)
+        let predicate = store.predicateForEvents(withStart: start, end: end, calendars: [calendar])
         let events = store.events(matching: predicate)
 
-        for event in events where event.url?.scheme == "coldplay" {
+        for event in events {
             do {
                 try store.remove(event, span: .thisEvent)
             } catch {

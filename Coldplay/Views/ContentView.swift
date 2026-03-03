@@ -70,13 +70,10 @@ struct ContentView: View {
         Button {
             Task {
                 let synced = await store.mark(type: type)
+                // 打卡成功，触发纸花特效
+                confettiTrigger += 1
                 let label = type.rawValue
-                if synced {
-                    confettiTrigger += 1
-                    toastMessage = "\(label) 已写入日历 ✓"
-                } else {
-                    toastMessage = "\(label) 已记录（日历未同步）"
-                }
+                toastMessage = synced ? "\(label) 已写入日历 ✓" : "\(label) 已记录"
                 try? await Task.sleep(for: .seconds(2))
                 toastMessage = nil
             }

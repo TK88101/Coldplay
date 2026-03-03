@@ -10,19 +10,52 @@ final class AttendanceStore {
     private let persistence = PersistenceService()
     let calendar = CalendarService()
 
+    private static let dayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
+
     private init() {
         records = persistence.load()
+        deduplicate()
+    }
+
+    /// 启动时清理可能存在的同一天重复记录（保留最新的）
+    private func deduplicate() {
+        var seen = Set<String>()
+        var cleaned = [AttendanceRecord]()
+        // 从后往前遍历，保留每天最新的记录
+        for record in records.reversed() {
+            let key = Self.dayFormatter.string(from: record.date)
+            if !seen.contains(key) {
+                seen.insert(key)
+                cleaned.append(record)
+            }
+        }
+        if cleaned.count != records.count {
+            records = cleaned.reversed()
+            persistence.save(records)
+        }
+    }
+
+    // MARK: - 日期 key
+
+    private func dayKey(for date: Date) -> String {
+        Self.dayFormatter.string(from: date)
     }
 
     // MARK: - 标记
 
-    /// 标记某天的考勤（自动替换同日旧记录），返回日历是否写入成功
+    /// 标记某天的考勤（同一天只保留最新一次），返回日历是否写入成功
     @discardableResult
     func mark(date: Date = Date(), type: AttendanceType, startTime: Date? = nil, endTime: Date? = nil, note: String? = nil) async -> Bool {
         let normalized = Calendar.current.startOfDay(for: date)
+        let key = dayKey(for: normalized)
 
-        // 移除同一天的旧记录
-        records.removeAll { Calendar.current.isDate($0.date, inSameDayAs: normalized) }
+        // 用日期字符串精确去重，确保同一天只有一条记录
+        records.removeAll { dayKey(for: $0.date) == key }
 
         let record = AttendanceRecord(
             date: normalized,
@@ -34,19 +67,17 @@ final class AttendanceStore {
         records.append(record)
         persistence.save(records)
 
-        // 同步到日历，返回结果
+        // 同步到日历（首次会弹出权限请求）
         return await calendar.syncRecord(record)
     }
 
     // MARK: - 查询
 
-    /// 获取某天的记录
     func record(for date: Date) -> AttendanceRecord? {
-        let normalized = Calendar.current.startOfDay(for: date)
-        return records.first { Calendar.current.isDate($0.date, inSameDayAs: normalized) }
+        let key = dayKey(for: date)
+        return records.first { dayKey(for: $0.date) == key }
     }
 
-    /// 获取某月的所有记录
     func records(forYear year: Int, month: Int) -> [AttendanceRecord] {
         records.filter { record in
             let components = Calendar.current.dateComponents([.year, .month], from: record.date)
@@ -59,17 +90,15 @@ final class AttendanceStore {
     struct Stats {
         let workDays: Int
         let restDays: Int
-        let totalHours: Double // 每次上班固定 8 小时
+        let totalHours: Double
     }
 
-    /// 累计总统计
     var totalStats: Stats {
         let workCount = records.filter { $0.type == .work }.count
         let restCount = records.filter { $0.type == .rest }.count
         return Stats(workDays: workCount, restDays: restCount, totalHours: Double(workCount) * 8.0)
     }
 
-    /// 某月统计
     func stats(forYear year: Int, month: Int) -> Stats {
         let monthRecords = records(forYear: year, month: month)
         let workCount = monthRecords.filter { $0.type == .work }.count
@@ -86,7 +115,6 @@ final class AttendanceStore {
     // MARK: - 测试支持
 
     #if DEBUG
-    /// 仅用于测试：注入自定义 persistence
     convenience init(persistence: PersistenceService) {
         self.init()
         self.records = persistence.load()
