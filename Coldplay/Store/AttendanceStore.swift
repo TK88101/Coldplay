@@ -16,8 +16,9 @@ final class AttendanceStore {
 
     // MARK: - 标记
 
-    /// 标记某天的考勤（自动替换同日旧记录）
-    func mark(date: Date = Date(), type: AttendanceType, startTime: Date? = nil, endTime: Date? = nil, note: String? = nil) async {
+    /// 标记某天的考勤（自动替换同日旧记录），返回日历是否写入成功
+    @discardableResult
+    func mark(date: Date = Date(), type: AttendanceType, startTime: Date? = nil, endTime: Date? = nil, note: String? = nil) async -> Bool {
         let normalized = Calendar.current.startOfDay(for: date)
 
         // 移除同一天的旧记录
@@ -33,8 +34,8 @@ final class AttendanceStore {
         records.append(record)
         persistence.save(records)
 
-        // 尝试同步到日历（最佳努力）
-        await calendar.syncRecord(record)
+        // 同步到日历，返回结果
+        return await calendar.syncRecord(record)
     }
 
     // MARK: - 查询

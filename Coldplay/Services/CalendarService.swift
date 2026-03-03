@@ -49,9 +49,10 @@ final class CalendarService {
         }
     }
 
-    /// 在"考勤"日历中创建/更新考勤事件
-    func syncRecord(_ record: AttendanceRecord) async {
-        guard hasAccess else { return }
+    /// 在"考勤"日历中创建/更新考勤事件，返回是否成功
+    @discardableResult
+    func syncRecord(_ record: AttendanceRecord) async -> Bool {
+        guard hasAccess else { return false }
 
         // 先删除同一天的旧事件
         removeEvents(on: record.normalizedDate)
@@ -64,7 +65,6 @@ final class CalendarService {
         switch record.type {
         case .work:
             event.title = "上班"
-            // 使用记录的上下班时间，或默认 12:00-20:00 JST
             if let start = record.startTime, let end = record.endTime {
                 event.startDate = start
                 event.endDate = end
@@ -83,13 +83,14 @@ final class CalendarService {
             event.notes = note
         }
 
-        // 添加标记以便后续识别
         event.url = URL(string: "coldplay://attendance")
 
         do {
             try store.save(event, span: .thisEvent)
+            return true
         } catch {
             print("Failed to save calendar event: \(error)")
+            return false
         }
     }
 
