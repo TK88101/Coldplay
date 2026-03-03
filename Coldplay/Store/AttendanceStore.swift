@@ -55,29 +55,25 @@ final class AttendanceStore {
 
     // MARK: - 统计
 
-    struct MonthlyStats {
+    struct Stats {
         let workDays: Int
         let restDays: Int
-        let totalHours: Double
+        let totalHours: Double // 每次上班固定 8 小时
     }
 
-    func stats(forYear year: Int, month: Int) -> MonthlyStats {
+    /// 累计总统计
+    var totalStats: Stats {
+        let workCount = records.filter { $0.type == .work }.count
+        let restCount = records.filter { $0.type == .rest }.count
+        return Stats(workDays: workCount, restDays: restCount, totalHours: Double(workCount) * 8.0)
+    }
+
+    /// 某月统计
+    func stats(forYear year: Int, month: Int) -> Stats {
         let monthRecords = records(forYear: year, month: month)
-        let workRecords = monthRecords.filter { $0.type == .work }
-        let restRecords = monthRecords.filter { $0.type == .rest }
-
-        let totalHours = workRecords.reduce(0.0) { total, record in
-            guard let start = record.startTime, let end = record.endTime else {
-                return total + 8.0 // 默认 8 小时
-            }
-            return total + end.timeIntervalSince(start) / 3600.0
-        }
-
-        return MonthlyStats(
-            workDays: workRecords.count,
-            restDays: restRecords.count,
-            totalHours: totalHours
-        )
+        let workCount = monthRecords.filter { $0.type == .work }.count
+        let restCount = monthRecords.filter { $0.type == .rest }.count
+        return Stats(workDays: workCount, restDays: restCount, totalHours: Double(workCount) * 8.0)
     }
 
     // MARK: - 导出

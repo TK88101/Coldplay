@@ -8,7 +8,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        VStack(spacing: 48) {
+        VStack(spacing: 0) {
             Spacer()
 
             // 当前状态
@@ -32,6 +32,15 @@ struct ContentView: View {
             }
 
             Spacer()
+
+            // 累计统计
+            let stats = store.totalStats
+            HStack(spacing: 32) {
+                statItem(label: "上班", value: "\(stats.workDays) 天", color: .blue)
+                statItem(label: "休息", value: "\(stats.restDays) 天", color: .green)
+                statItem(label: "工时", value: "\(Int(stats.totalHours))h", color: .primary)
+            }
+            .padding(.bottom, 40)
         }
     }
 
@@ -50,5 +59,16 @@ struct ContentView: View {
             .background(color, in: RoundedRectangle(cornerRadius: 24))
         }
         .shadow(color: color.opacity(0.3), radius: 10, y: 5)
+    }
+
+    private func statItem(label: String, value: String, color: Color) -> some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.title3.bold())
+                .foregroundStyle(color)
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 }

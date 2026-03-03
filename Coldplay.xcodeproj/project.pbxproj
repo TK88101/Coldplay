@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1DEF284A3FE40DEA1B05F90F /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3A9F83EB859520E141B06F /* NotificationService.swift */; };
 		247FD5F1BD02FA2E6621DBD8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF87F3F745D8533C90FB8229 /* ContentView.swift */; };
 		281EF2C0CFBF80FCA4E1DB58 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1C4839D8C0F5F16A96EE182 /* Assets.xcassets */; };
 		51F650CC415322D318FAF030 /* ColdplayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B22536E7992B459D1F7595 /* ColdplayApp.swift */; };
@@ -40,6 +41,7 @@
 		218DB925147CA567F46B6C14 /* ColdplayTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ColdplayTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		22DCC2E16A6AC979FF68EB35 /* AttendanceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceStore.swift; sourceTree = "<group>"; };
 		3CE1A796416473AD044886E7 /* PersistenceServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceServiceTests.swift; sourceTree = "<group>"; };
+		3E3A9F83EB859520E141B06F /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		42D01955387A88D270E9B9CD /* Coldplay.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Coldplay.entitlements; sourceTree = "<group>"; };
 		476F00D16301E8308AC099DD /* AttendanceShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceShortcuts.swift; sourceTree = "<group>"; };
 		5DC19C401745E4E129983834 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				7049B88A72D297112914E67E /* CalendarService.swift */,
+				3E3A9F83EB859520E141B06F /* NotificationService.swift */,
 				8E087F4D42DBBFD765F2AB67 /* PersistenceService.swift */,
 			);
 			path = Services;
@@ -254,6 +257,7 @@
 				247FD5F1BD02FA2E6621DBD8 /* ContentView.swift in Sources */,
 				93B036A26DAA84B24C7910AD /* MarkRestIntent.swift in Sources */,
 				9305F24E1F22C3A0E8498630 /* MarkWorkIntent.swift in Sources */,
+				1DEF284A3FE40DEA1B05F90F /* NotificationService.swift in Sources */,
 				A0E5B24A22F9E4716AA5BFF8 /* PersistenceService.swift in Sources */,
 				9410D765F3C060F77EFCDCAC /* StatsView.swift in Sources */,
 				A09E3378752459B3D83733F1 /* TodayView.swift in Sources */,
