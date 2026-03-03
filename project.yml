@@ -33,6 +33,8 @@ targets:
         INFOPLIST_FILE: Coldplay/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.personal.coldplay
         TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 6HFVSLS63D
     info:
       path: Coldplay/Info.plist
       properties:
