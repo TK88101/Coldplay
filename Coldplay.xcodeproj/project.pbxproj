@@ -17,6 +17,7 @@
 		9305F24E1F22C3A0E8498630 /* MarkWorkIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC105452D04F4AD2BB9E859 /* MarkWorkIntent.swift */; };
 		93B036A26DAA84B24C7910AD /* MarkRestIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F621EDE4FEE82DF82906A6 /* MarkRestIntent.swift */; };
 		9410D765F3C060F77EFCDCAC /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E456E43B88276612DD41A5C /* StatsView.swift */; };
+		98D8D72028899A431F569E35 /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0304ABFC242876C0087799DE /* ConfettiSwiftUI */; };
 		A09E3378752459B3D83733F1 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B8A517DCE9B5AECFFE522E /* TodayView.swift */; };
 		A0E5B24A22F9E4716AA5BFF8 /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E087F4D42DBBFD765F2AB67 /* PersistenceService.swift */; };
 		AE0AEF9E8D26E40CF31314FA /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7049B88A72D297112914E67E /* CalendarService.swift */; };
@@ -56,6 +57,17 @@
 		E2F621EDE4FEE82DF82906A6 /* MarkRestIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkRestIntent.swift; sourceTree = "<group>"; };
 		F6EABAC3D3A6C4C35BD146C9 /* Coldplay.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Coldplay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		10A6246C3A3C66887A4932DA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				98D8D72028899A431F569E35 /* ConfettiSwiftUI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		09ED4D270F6A7AEE7E285467 /* App */ = {
@@ -182,6 +194,7 @@
 			buildPhases = (
 				F55952DE4A748AD831AB057B /* Sources */,
 				732F67859D070041B010742D /* Resources */,
+				10A6246C3A3C66887A4932DA /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -189,6 +202,7 @@
 			);
 			name = Coldplay;
 			packageProductDependencies = (
+				0304ABFC242876C0087799DE /* ConfettiSwiftUI */,
 			);
 			productName = Coldplay;
 			productReference = F6EABAC3D3A6C4C35BD146C9 /* Coldplay.app */;
@@ -213,6 +227,9 @@
 			);
 			mainGroup = 675AA27F3D329FA188008C05;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				596DD35DF72DBD2EB3DE04F6 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
+			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
@@ -499,6 +516,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		596DD35DF72DBD2EB3DE04F6 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/simibac/ConfettiSwiftUI.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0304ABFC242876C0087799DE /* ConfettiSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 596DD35DF72DBD2EB3DE04F6 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */;
+			productName = ConfettiSwiftUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 13F2CDA98458DF134E4A6998 /* Project object */;
 }

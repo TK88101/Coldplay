@@ -5,6 +5,11 @@ options:
     iOS: "17.0"
   xcodeVersion: "16.2"
 
+packages:
+  ConfettiSwiftUI:
+    url: https://github.com/simibac/ConfettiSwiftUI.git
+    branch: master
+
 settings:
   base:
     SWIFT_VERSION: "5.9"
@@ -21,6 +26,8 @@ targets:
       - path: Coldplay
         excludes:
           - "**/*.plist"
+    dependencies:
+      - package: ConfettiSwiftUI
     settings:
       base:
         INFOPLIST_FILE: Coldplay/Info.plist

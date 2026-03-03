@@ -1,8 +1,10 @@
 import SwiftUI
+import ConfettiSwiftUI
 
 struct ContentView: View {
     @Environment(AttendanceStore.self) private var store
     @State private var toastMessage: String?
+    @State private var confettiTrigger = 0
 
     private var todayRecord: AttendanceRecord? {
         store.record(for: Date())
@@ -32,6 +34,7 @@ struct ContentView: View {
                     markButton(type: .work, color: .blue, icon: "briefcase.fill")
                     markButton(type: .rest, color: .green, icon: "leaf.fill")
                 }
+                .confettiCannon(trigger: $confettiTrigger, num: 30, radius: 300)
 
                 Spacer()
 
@@ -68,7 +71,12 @@ struct ContentView: View {
             Task {
                 let synced = await store.mark(type: type)
                 let label = type.rawValue
-                toastMessage = synced ? "\(label) 已写入日历 ✓" : "\(label) 已记录（日历未同步）"
+                if synced {
+                    confettiTrigger += 1
+                    toastMessage = "\(label) 已写入日历 ✓"
+                } else {
+                    toastMessage = "\(label) 已记录（日历未同步）"
+                }
                 try? await Task.sleep(for: .seconds(2))
                 toastMessage = nil
             }
