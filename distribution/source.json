@@ -10,11 +10,20 @@
       "bundleIdentifier": "com.personal.coldplay",
       "developerName": "TK88101",
       "subtitle": "极简考勤打卡",
-      "localizedDescription": "极简 iOS 考勤打卡应用，专为不固定休息日的工作模式设计。每天点一个按钮标记上班或休息，自动同步到 iPhone 日历。支持补打卡、年度统计、CSV 备份、多语言（繁體中文/日本語）、Siri 语音打卡。",
+      "localizedDescription": "极简 iOS 考勤打卡应用，专为不固定休息日的工作模式设计。支持上班、加班、休息、年假打卡，自动同步到 iPhone 日历。支持补打卡、年度统计、CSV 备份、多语言（繁體中文/日本語）、Siri 语音打卡。",
       "iconURL": "https://raw.githubusercontent.com/TK88101/Coldplay/main/distribution/icon.png",
       "tintColor": "2E86DE",
       "category": "utilities",
       "versions": [
+        {
+          "version": "1.2",
+          "buildVersion": "3",
+          "date": "2026-03-04T00:00:00Z",
+          "localizedDescription": "新增年假、加班功能；五按钮布局；统计栏新增年假天数",
+          "downloadURL": "https://github.com/TK88101/Coldplay/releases/download/v1.2/Coldplay.ipa",
+          "size": 2300000,
+          "minOSVersion": "26.0"
+        },
         {
           "version": "1.1",
           "buildVersion": "2",
