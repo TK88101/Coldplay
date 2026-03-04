@@ -47,7 +47,8 @@ Lightweight MVVM + Service Layer. Single-screen attendance tracking app.
 ## Key Constraints
 
 - **iOS 26.0 minimum** — uses `glassEffect()`, `GlassEffectContainer`, `symbolEffect(.breathe)` APIs
-- **Free provisioning** — 7-day signing expiry, no iCloud entitlement available. Data persists in Documents directory across reinstalls. SideStore can be used for auto-resign.
+- **Free provisioning** — 7-day signing expiry, no iCloud entitlement available. Data persists in Documents directory across reinstalls. SideStore handles auto-resign.
+- **SideStore distribution** — Install via iloader (Mac) → SideStore (iPhone). AltStore is NOT needed. AltStore Source JSON at `distribution/source.json`, IPA hosted on GitHub Releases. GitHub repo must be **public** for URLs to work. iloader "Import IPA" can also directly install .ipa via USB.
 - **Multi-language UI** — supports Traditional Chinese (繁體中文) and Japanese (日本語), switchable in Settings. `LocalizationManager` handles all UI strings; `AppLanguage.locale` controls date formatting.
 - **Annual stats reset** — `totalStats` resets on Jan 1 each year. Historical years viewable via tapping stats bar.
 - **CSV auto-backup** — every mark triggers `autoBackup()` saving per-month CSV to Documents. Files visible in iOS Files app under "Coldplay".
