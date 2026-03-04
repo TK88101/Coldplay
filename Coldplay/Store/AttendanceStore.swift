@@ -66,6 +66,7 @@ final class AttendanceStore {
         )
         records.append(record)
         persistence.save(records)
+        persistence.autoBackup(records)
 
         // 同步到日历（首次会弹出权限请求）
         return await calendar.syncRecord(record)
@@ -93,9 +94,23 @@ final class AttendanceStore {
         let totalHours: Double
     }
 
+    /// 当年统计（每年 1/1 重置）
     var totalStats: Stats {
-        let workCount = records.filter { $0.type == .work }.count
-        let restCount = records.filter { $0.type == .rest }.count
+        let currentYear = Calendar.current.component(.year, from: Date())
+        let yearRecords = records.filter {
+            Calendar.current.component(.year, from: $0.date) == currentYear
+        }
+        let workCount = yearRecords.filter { $0.type == .work }.count
+        let restCount = yearRecords.filter { $0.type == .rest }.count
+        return Stats(workDays: workCount, restDays: restCount, totalHours: Double(workCount) * 8.0)
+    }
+
+    func stats(forYear year: Int) -> Stats {
+        let yearRecords = records.filter {
+            Calendar.current.component(.year, from: $0.date) == year
+        }
+        let workCount = yearRecords.filter { $0.type == .work }.count
+        let restCount = yearRecords.filter { $0.type == .rest }.count
         return Stats(workDays: workCount, restDays: restCount, totalHours: Double(workCount) * 8.0)
     }
 
@@ -104,6 +119,12 @@ final class AttendanceStore {
         let workCount = monthRecords.filter { $0.type == .work }.count
         let restCount = monthRecords.filter { $0.type == .rest }.count
         return Stats(workDays: workCount, restDays: restCount, totalHours: Double(workCount) * 8.0)
+    }
+
+    /// 所有有记录的年份（降序）
+    var availableYears: [Int] {
+        let years = Set(records.map { Calendar.current.component(.year, from: $0.date) })
+        return years.sorted(by: >)
     }
 
     // MARK: - 导出

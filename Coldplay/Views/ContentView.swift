@@ -3,11 +3,14 @@ import ConfettiSwiftUI
 
 struct ContentView: View {
     @Environment(AttendanceStore.self) private var store
+    @Environment(LocalizationManager.self) private var loc
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var toastMessage: String?
     @State private var confettiTrigger = 0
     @State private var showBackfill = false
     @State private var backfillDate = Date()
+    @State private var showSettings = false
+    @State private var showYearlyStats = false
     @Namespace private var glassNS
 
     private var todayRecord: AttendanceRecord? {
@@ -25,31 +28,57 @@ struct ContentView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
+                // 设置按钮 — 右上角
+                HStack {
+                    Spacer()
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                            .font(.title3)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
+
                 Spacer()
 
                 // 当前状态 — Liquid Glass 卡片
                 statusCard
                     .padding(.bottom, 32)
 
-                // 两个大按钮 — Liquid Glass interactive
-                GlassEffectContainer(spacing: 24) {
-                    HStack(spacing: 24) {
-                        markButton(type: .work, tint: .blue, icon: "briefcase.fill")
-                        markButton(type: .rest, tint: .green, icon: "leaf.fill")
+                // 三个按钮 — 上班 / 休息 / 补打卡（垂直排列，胶囊形）
+                GlassEffectContainer(spacing: 14) {
+                    VStack(spacing: 14) {
+                        actionButton(
+                            label: loc.work,
+                            icon: "briefcase.fill",
+                            tint: .blue
+                        ) {
+                            performMark(type: .work)
+                        }
+
+                        actionButton(
+                            label: loc.rest,
+                            icon: "leaf.fill",
+                            tint: .green
+                        ) {
+                            performMark(type: .rest)
+                        }
+
+                        actionButton(
+                            label: loc.backfill,
+                            icon: "calendar.badge.plus",
+                            tint: .orange
+                        ) {
+                            backfillDate = Date()
+                            showBackfill = true
+                        }
                     }
                 }
+                .padding(.horizontal, 24)
                 .confettiCannon(trigger: $confettiTrigger, num: 30, radius: 300)
-
-                // 补打按钮
-                Button {
-                    backfillDate = Date()
-                    showBackfill = true
-                } label: {
-                    Label("补打卡", systemImage: "calendar.badge.plus")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.top, 20)
 
                 Spacer()
 
@@ -77,6 +106,11 @@ struct ContentView: View {
         .sheet(isPresented: $showBackfill) {
             backfillSheet
         }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .environment(loc)
+                .environment(store)
+        }
     }
 
     // MARK: - 状态卡片
@@ -90,10 +124,10 @@ struct ContentView: View {
                     .foregroundStyle(record.type == .work ? .blue : .green)
                     .symbolEffect(.breathe, isActive: !reduceMotion)
 
-                Text(record.type.rawValue)
+                Text(loc.displayName(for: record.type))
                     .font(.title2.bold())
 
-                Text(Date(), format: .dateTime.month(.wide).day().weekday(.wide))
+                Text(Date().formatted(.dateTime.year().month(.wide).day().weekday(.wide).locale(loc.language.locale)))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -106,11 +140,11 @@ struct ContentView: View {
                     .font(.system(size: 44, weight: .medium))
                     .foregroundStyle(.secondary)
 
-                Text("今天还没有打卡")
+                Text(loc.notClockedIn)
                     .font(.title3)
                     .foregroundStyle(.secondary)
 
-                Text(Date(), format: .dateTime.month(.wide).day().weekday(.wide))
+                Text(Date().formatted(.dateTime.year().month(.wide).day().weekday(.wide).locale(loc.language.locale)))
                     .font(.subheadline)
                     .foregroundStyle(.tertiary)
             }
@@ -120,31 +154,37 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - 打卡按钮
+    // MARK: - 操作按钮（矩形）
 
-    private func markButton(type: AttendanceType, tint: Color, icon: String) -> some View {
-        Button {
-            Task {
-                let synced = await store.mark(type: type)
-                withAnimation(.bouncy) {
-                    confettiTrigger += 1
-                }
-                let label = type.rawValue
-                toastMessage = synced ? "\(label) 已写入日历 ✓" : "\(label) 已记录"
-                try? await Task.sleep(for: .seconds(2))
-                toastMessage = nil
-            }
-        } label: {
-            VStack(spacing: 10) {
+    private func actionButton(label: String, icon: String, tint: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
                 Image(systemName: icon)
-                    .font(.system(size: 36, weight: .medium))
-                Text(type.rawValue)
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundStyle(tint)
+                Text(label)
                     .font(.headline)
+                    .foregroundStyle(tint)
             }
-            .foregroundStyle(.white)
-            .frame(width: 130, height: 130)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
         }
-        .glassEffect(.regular.tint(tint).interactive(), in: RoundedRectangle(cornerRadius: 32))
+        .glassEffect(.regular.interactive(), in: .capsule)
+    }
+
+    // MARK: - 打卡操作
+
+    private func performMark(type: AttendanceType) {
+        Task {
+            let synced = await store.mark(type: type)
+            withAnimation(.bouncy) {
+                confettiTrigger += 1
+            }
+            let label = loc.displayName(for: type)
+            toastMessage = synced ? loc.writtenToCalendar(label) : loc.recorded(label)
+            try? await Task.sleep(for: .seconds(2))
+            toastMessage = nil
+        }
     }
 
     // MARK: - 补打卡 Sheet
@@ -153,7 +193,7 @@ struct ContentView: View {
         NavigationStack {
             VStack(spacing: 24) {
                 DatePicker(
-                    "选择日期",
+                    loc.selectDate,
                     selection: $backfillDate,
                     in: ...Date(),
                     displayedComponents: .date
@@ -162,7 +202,7 @@ struct ContentView: View {
                 .padding(.horizontal)
 
                 if let existing = store.record(for: backfillDate) {
-                    Text("该日已标记：\(existing.type.rawValue)")
+                    Text(loc.alreadyMarked(loc.displayName(for: existing.type)))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -171,34 +211,35 @@ struct ContentView: View {
                     Button {
                         performBackfill(type: .work)
                     } label: {
-                        Label("上班", systemImage: "briefcase.fill")
+                        Label(loc.work, systemImage: "briefcase.fill")
                             .font(.headline)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.blue)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                     }
-                    .glassEffect(.regular.tint(.blue).interactive(), in: RoundedRectangle(cornerRadius: 16))
+                    .glassEffect(.regular.interactive(), in: .capsule)
 
                     Button {
                         performBackfill(type: .rest)
                     } label: {
-                        Label("休息", systemImage: "leaf.fill")
+                        Label(loc.rest, systemImage: "leaf.fill")
                             .font(.headline)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.green)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                     }
-                    .glassEffect(.regular.tint(.green).interactive(), in: RoundedRectangle(cornerRadius: 16))
+                    .glassEffect(.regular.interactive(), in: .capsule)
                 }
                 .padding(.horizontal, 24)
 
                 Spacer()
             }
-            .navigationTitle("补打卡")
+            .navigationTitle(loc.backfill)
             .navigationBarTitleDisplayMode(.inline)
+            .environment(\.locale, loc.language.locale)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { showBackfill = false }
+                    Button(loc.cancel) { showBackfill = false }
                 }
             }
         }
@@ -211,32 +252,102 @@ struct ContentView: View {
             withAnimation(.bouncy) {
                 confettiTrigger += 1
             }
-            let dateStr = backfillDate.formatted(.dateTime.month(.abbreviated).day())
-            let label = type.rawValue
-            toastMessage = synced ? "\(dateStr) \(label) 已写入日历 ✓" : "\(dateStr) \(label) 已记录"
+            let dateStr = backfillDate.formatted(.dateTime.month(.abbreviated).day().locale(loc.language.locale))
+            let label = loc.displayName(for: type)
+            toastMessage = synced ? loc.backfillWritten(date: dateStr, label: label) : loc.backfillRecorded(date: dateStr, label: label)
             try? await Task.sleep(for: .seconds(2))
             toastMessage = nil
         }
     }
 
-    // MARK: - 统计栏
+    // MARK: - 统计栏（点击查看历年）
 
     private var statsBar: some View {
         let stats = store.totalStats
-        return HStack(spacing: 0) {
-            statItem(label: "上班", value: "\(stats.workDays) 天", color: .blue)
-            Spacer()
-            Divider().frame(height: 28)
-            Spacer()
-            statItem(label: "休息", value: "\(stats.restDays) 天", color: .green)
-            Spacer()
-            Divider().frame(height: 28)
-            Spacer()
-            statItem(label: "工时", value: "\(Int(stats.totalHours))h", color: .primary)
+        return Button {
+            showYearlyStats = true
+        } label: {
+            HStack(spacing: 0) {
+                statItem(label: loc.workDaysLabel, value: "\(stats.workDays) \(loc.daysUnit)", color: .blue)
+                Spacer()
+                Divider().frame(height: 24)
+                Spacer()
+                statItem(label: loc.restDaysLabel, value: "\(stats.restDays) \(loc.daysUnit)", color: .green)
+                Spacer()
+                Divider().frame(height: 24)
+                Spacer()
+                statItem(label: loc.hoursLabel, value: "\(Int(stats.totalHours))h", color: .primary)
+            }
+            .padding(.horizontal, 28)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
         }
-        .padding(.horizontal, 28)
-        .padding(.vertical, 16)
         .glassEffect(.regular, in: .capsule)
+        .sheet(isPresented: $showYearlyStats) {
+            yearlyStatsSheet
+        }
+    }
+
+    // MARK: - 历年统计 Sheet
+
+    private var yearlyStatsSheet: some View {
+        NavigationStack {
+            List {
+                ForEach(store.availableYears, id: \.self) { year in
+                    let s = store.stats(forYear: year)
+                    let currentYear = Calendar.current.component(.year, from: Date())
+                    Section {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Label("\(s.workDays) \(loc.daysUnit)", systemImage: "briefcase.fill")
+                                    .foregroundStyle(.blue)
+                                Text(loc.workDaysLabel)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            VStack(alignment: .leading, spacing: 4) {
+                                Label("\(s.restDays) \(loc.daysUnit)", systemImage: "leaf.fill")
+                                    .foregroundStyle(.green)
+                                Text(loc.restDaysLabel)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            VStack(alignment: .leading, spacing: 4) {
+                                Label("\(Int(s.totalHours))h", systemImage: "clock")
+                                    .foregroundStyle(.primary)
+                                Text(loc.hoursLabel)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    } header: {
+                        HStack {
+                            Text("\(String(year)) \(loc.yearLabel)")
+                                .font(.headline)
+                            if year == currentYear {
+                                Text(loc.currentYearTag)
+                                    .font(.caption2)
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle(loc.yearlyStats)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        showYearlyStats = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
     }
 
     private func statItem(label: String, value: String, color: Color) -> some View {

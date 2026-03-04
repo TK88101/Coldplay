@@ -16,17 +16,17 @@ Coldplay 是一款极简 iOS 考勤打卡应用，专为不固定休息日的工
 
 | 项目 | 说明 |
 |------|------|
-| 操作方式 | 主屏两个大按钮："上班"(蓝色) / "休息"(绿色) |
+| 操作方式 | 主屏三个胶囊按钮：上班(蓝) / 休息(绿) / 补打卡(橘)，垂直排列 |
 | 同一天逻辑 | 同一天多次点击只保留最后一次（替换而非累加） |
 | 反馈 | 成功后弹出 Confetti 纸花特效 + Toast 提示 |
-| 状态展示 | 卡片显示今日已打卡状态（图标 + 类型 + 日期） |
+| 状态展示 | 卡片显示今日已打卡状态（图标 + 类型 + 年月日星期） |
 
 ### 2. 补打卡
 
 | 项目 | 说明 |
 |------|------|
-| 入口 | 主屏"补打卡"按钮 |
-| 交互 | 弹出 Sheet，含图形化日期选择器（仅可选今天及之前） |
+| 入口 | 主屏第三个胶囊按钮（橘色） |
+| 交互 | 弹出 Sheet，含图形化日期选择器（仅可选今天及之前），日历语言跟随 app 设置 |
 | 提示 | 如果所选日期已有记录，显示当前标记状态 |
 | 确认 | 选择"上班"或"休息"后自动写入并关闭 |
 
@@ -41,14 +41,15 @@ Coldplay 是一款极简 iOS 考勤打卡应用，专为不固定休息日的工
 | 防重复 | 重新标记时先删除旧事件再创建新事件 |
 | 权限 | 首次使用自动请求日历权限，权限被拒时仍可本地记录 |
 
-### 4. 累计统计
+### 4. 年度统计
 
 | 项目 | 说明 |
 |------|------|
-| 展示位置 | 主屏底部玻璃胶囊栏 |
-| 统计项 | 累计上班天数、累计休息天数、累计工时 |
+| 展示位置 | 主屏底部玻璃胶囊栏（与按钮等宽等高） |
+| 统计项 | 当年上班天数、休息天数、累计工时 |
 | 工时计算 | 每个工作日固定 8 小时 |
-| 月度查询 | 支持按年月筛选统计 |
+| 年度重置 | 每年 1/1 自动归零 |
+| 历年查看 | 点击统计栏弹出历年统计 Sheet，按年份降序列出所有年份数据 |
 
 ### 5. 每日提醒
 
@@ -65,12 +66,32 @@ Coldplay 是一款极简 iOS 考勤打卡应用，专为不固定休息日的工
 | 记录上班 | "用 Coldplay 记录上班"、"在 Coldplay 打卡上班" |
 | 记录休息 | "用 Coldplay 记录休息"、"在 Coldplay 打卡休息" |
 
-### 7. CSV 导出
+### 7. CSV 备份与导出
 
 | 项目 | 说明 |
 |------|------|
 | 格式 | CSV（日期, 类型, 上班时间, 下班时间, 备注） |
-| 分享 | 通过系统分享功能发送 |
+| 自动备份 | 每次打卡自动按月保存 CSV（`attendance_YYYY-MM.csv`）到 Documents 目录 |
+| 文件可见 | 通过 `UIFileSharingEnabled` 在 iOS「文件」App > Coldplay 下可查看 |
+| 手动导出 | 设置页面提供 ShareLink 一键导出完整记录 |
+| 数据安全 | 修改打卡（如上班改休息）后 CSV 同步更新 |
+
+### 8. 多语言支持
+
+| 项目 | 说明 |
+|------|------|
+| 支持语言 | 繁體中文（默认）、日本語 |
+| 切换入口 | 设置页面 |
+| 覆盖范围 | 所有 UI 文字、日期格式、DatePicker 日历语言 |
+| 持久化 | UserDefaults 存储，重启保持选择 |
+| 实现 | `LocalizationManager` 单例，`@Observable`，通过 `.environment()` 注入 |
+
+### 9. 设置页
+
+| 项目 | 说明 |
+|------|------|
+| 入口 | 主屏右上角齿轮图标 |
+| 功能 | 语言切换、CSV 导出、自动备份路径提示 |
 
 ## 技术架构
 
@@ -84,11 +105,12 @@ Coldplay 是一款极简 iOS 考勤打卡应用，专为不固定休息日的工
 | 日历 | EventKit |
 | 语音 | App Intents |
 | 通知 | UserNotifications |
-| 存储 | 本地 JSON（Documents 目录） |
+| 存储 | 本地 JSON + CSV 自动备份（Documents 目录） |
+| 多语言 | LocalizationManager（繁體中文 / 日本語） |
 | 动画 | ConfettiSwiftUI (SPM) |
 | UI 风格 | iOS 26 Liquid Glass |
 | 项目管理 | XcodeGen (project.yml) |
-| 分发 | Xcode 免费签名 Sideload |
+| 分发 | Xcode 免费签名 Sideload / SideStore 自动续签 |
 
 ### 架构模式
 
@@ -97,14 +119,18 @@ Coldplay 是一款极简 iOS 考勤打卡应用，专为不固定休息日的工
 ```
 App/                    → 应用入口
 Models/                 → 数据模型 (AttendanceRecord)
+Models/
+  AttendanceRecord      → 数据模型
+  AppLanguage           → 语言枚举 + LocalizationManager 单例
 Services/
-  PersistenceService    → JSON 读写 + CSV 导出
+  PersistenceService    → JSON 读写 + CSV 导出/自动备份
   CalendarService       → EventKit 封装（日历创建/事件管理）
   NotificationService   → 每日提醒调度
 Store/
-  AttendanceStore       → @Observable 单例，核心业务逻辑
+  AttendanceStore       → @Observable 单例，核心业务逻辑（年度统计 + 历年查询）
 Views/
-  ContentView           → 主界面（Liquid Glass 风格）
+  ContentView           → 主界面（Liquid Glass 胶囊按钮 + 历年统计 Sheet）
+  SettingsView          → 语言切换 + CSV 导出
 Intents/
   MarkWorkIntent        → Siri "记录上班"
   MarkRestIntent        → Siri "记录休息"
@@ -139,6 +165,10 @@ struct AttendanceRecord: Codable, Identifiable {
 | CalendarService 自动请求权限 | `syncRecord()` 内部检查并按需请求，无需手动触发 |
 | 单例 `AttendanceStore.shared` | Siri Intent 和 UI 共享同一份数据 |
 | JSON 原子写入 | `.atomic` 选项防止写入中断导致数据损坏 |
+| 年度统计重置 | `totalStats` 按当前年份过滤，1/1 自动归零，历年数据仍可查看 |
+| CSV 每次打卡自动备份 | `autoBackup()` 在 `mark()` 后自动运行，按月分文件，覆盖更新 |
+| 不使用 iCloud 容器 | 免费签名不支持 iCloud entitlement，改用 `UIFileSharingEnabled` 本地共享 |
+| `LocalizationManager` 字典式本地化 | 轻量方案，无需 .strings 文件，所有字串集中在 `AppLanguage.swift` |
 
 ## UI 设计
 
@@ -147,9 +177,10 @@ struct AttendanceRecord: Codable, Identifiable {
 采用 iOS 26 Liquid Glass 设计语言：
 
 - **背景**: 蓝/青/绿微透明渐变，为玻璃效果提供色彩折射
-- **状态卡片**: `.glassEffect(.regular)` 圆角矩形，带 `.symbolEffect(.breathe)` 呼吸动画
-- **打卡按钮**: `GlassEffectContainer` 包裹，`.interactive()` 提供触摸缩放/弹跳/微光反馈
-- **统计栏**: `.glassEffect(.regular, in: .capsule)` 胶囊形玻璃底栏
+- **状态卡片**: `.glassEffect(.regular)` 圆角矩形，带 `.symbolEffect(.breathe)` 呼吸动画，显示完整年月日星期
+- **打卡按钮**: 三个垂直排列的胶囊按钮（`.capsule`），标准液态玻璃效果（`.regular.interactive()`），图标和文字为对应颜色
+- **统计栏**: `.glassEffect(.regular, in: .capsule)` 胶囊形玻璃底栏，与按钮等宽等高（56pt），可点击查看历年统计
+- **设置入口**: 右上角齿轮图标
 - **Toast 提示**: 玻璃材质胶囊，从顶部滑入
 - **无障碍**: 尊重 `accessibilityReduceMotion` 系统设置
 
@@ -157,9 +188,10 @@ struct AttendanceRecord: Codable, Identifiable {
 
 | 元素 | 颜色 |
 |------|------|
-| 上班按钮/图标 | 蓝色 (.blue) |
-| 休息按钮/图标 | 绿色 (.green) |
-| 按钮文字 | 白色 (.white) |
+| 上班图标/文字 | 蓝色 (.blue) |
+| 休息图标/文字 | 绿色 (.green) |
+| 补打卡图标/文字 | 橘色 (.orange) |
+| 按钮背景 | 标准液态玻璃（无色彩填充） |
 | 未打卡状态 | 次要色 (.secondary) |
 
 ## 测试
@@ -180,9 +212,9 @@ struct AttendanceRecord: Codable, Identifiable {
 
 | 限制 | 说明 |
 |------|------|
-| 7 天签名过期 | 免费签名需每周连 Mac 重装，数据不丢失（JSON 在 Documents 目录） |
+| 7 天签名过期 | 免费签名需每周连 Mac 重装，可通过 SideStore 自动续签。数据不丢失 |
 | Siri 中文识别 | 需真机测试，已提供多种短语变体 |
-| 数据备份 | JSON 随 App 删除丢失，后续可加 iCloud 备份 |
+| 无 iCloud 同步 | 免费签名不支持 iCloud 容器，CSV 备份存于本地「文件」App |
 | 仅限 iOS 26+ | 使用 Liquid Glass API，不兼容旧版 iOS |
 
 ## 构建指南
@@ -217,3 +249,4 @@ xcodebuild -scheme Coldplay -sdk iphonesimulator26.2 SYMROOT=/tmp/ColdplayBuild 
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 1.0 | 2026-03-04 | 初始版本：快速打卡、日历同步、统计、Siri、通知、补打卡、Liquid Glass UI |
+| 1.1 | 2026-03-04 | 多语言（繁中/日语）、CSV 自动备份、年度统计重置+历年查看、胶囊按钮 UI、设置页、SideStore 兼容打包 |

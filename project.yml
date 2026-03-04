@@ -40,6 +40,8 @@ targets:
       properties:
         NSCalendarsFullAccessUsageDescription: "考勤助手需要访问您的日历来同步上班和休息记录"
         UILaunchScreen: {}
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
     entitlements:
       path: Coldplay/Coldplay.entitlements
       properties: {}

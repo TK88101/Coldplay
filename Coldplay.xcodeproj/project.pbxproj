@@ -10,7 +10,9 @@
 		1DEF284A3FE40DEA1B05F90F /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3A9F83EB859520E141B06F /* NotificationService.swift */; };
 		247FD5F1BD02FA2E6621DBD8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF87F3F745D8533C90FB8229 /* ContentView.swift */; };
 		281EF2C0CFBF80FCA4E1DB58 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1C4839D8C0F5F16A96EE182 /* Assets.xcassets */; };
+		4E2539F50F5FA438613EA92B /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0B3B157B005B3AF550B485 /* AppLanguage.swift */; };
 		51F650CC415322D318FAF030 /* ColdplayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B22536E7992B459D1F7595 /* ColdplayApp.swift */; };
+		5371E6DC90D825782AD06756 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA14E3BC59B9BD0A23C1F846 /* SettingsView.swift */; };
 		6A93DD9B80FA574E43DB1D02 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC19C401745E4E129983834 /* CalendarView.swift */; };
 		6CA738D536CCCD6417EFFDC8 /* AttendanceRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BFDD6BB92BE3D7E55F02A3 /* AttendanceRecord.swift */; };
 		7BE30D5468DE2125BE1EF113 /* PersistenceServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE1A796416473AD044886E7 /* PersistenceServiceTests.swift */; };
@@ -43,6 +45,7 @@
 		22DCC2E16A6AC979FF68EB35 /* AttendanceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceStore.swift; sourceTree = "<group>"; };
 		3CE1A796416473AD044886E7 /* PersistenceServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceServiceTests.swift; sourceTree = "<group>"; };
 		3E3A9F83EB859520E141B06F /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		3F0B3B157B005B3AF550B485 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
 		42D01955387A88D270E9B9CD /* Coldplay.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Coldplay.entitlements; sourceTree = "<group>"; };
 		476F00D16301E8308AC099DD /* AttendanceShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceShortcuts.swift; sourceTree = "<group>"; };
 		5DC19C401745E4E129983834 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
@@ -53,6 +56,7 @@
 		A3B22536E7992B459D1F7595 /* ColdplayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColdplayApp.swift; sourceTree = "<group>"; };
 		D1C4839D8C0F5F16A96EE182 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D58BBEB8EDE2BB4FCEF5119C /* AttendanceStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceStoreTests.swift; sourceTree = "<group>"; };
+		DA14E3BC59B9BD0A23C1F846 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		DF87F3F745D8533C90FB8229 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E2F621EDE4FEE82DF82906A6 /* MarkRestIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkRestIntent.swift; sourceTree = "<group>"; };
 		F6EABAC3D3A6C4C35BD146C9 /* Coldplay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Coldplay.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -121,6 +125,7 @@
 			children = (
 				5DC19C401745E4E129983834 /* CalendarView.swift */,
 				DF87F3F745D8533C90FB8229 /* ContentView.swift */,
+				DA14E3BC59B9BD0A23C1F846 /* SettingsView.swift */,
 				0E456E43B88276612DD41A5C /* StatsView.swift */,
 				91B8A517DCE9B5AECFFE522E /* TodayView.swift */,
 			);
@@ -130,6 +135,7 @@
 		BA81D1AA3FFC0B9CFB90FD98 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				3F0B3B157B005B3AF550B485 /* AppLanguage.swift */,
 				12BFDD6BB92BE3D7E55F02A3 /* AttendanceRecord.swift */,
 			);
 			path = Models;
@@ -269,6 +275,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E2539F50F5FA438613EA92B /* AppLanguage.swift in Sources */,
 				6CA738D536CCCD6417EFFDC8 /* AttendanceRecord.swift in Sources */,
 				E3B6181DE4BA81ADA1E51964 /* AttendanceShortcuts.swift in Sources */,
 				C4F42E69616C1F05871EE1AA /* AttendanceStore.swift in Sources */,
@@ -280,6 +287,7 @@
 				9305F24E1F22C3A0E8498630 /* MarkWorkIntent.swift in Sources */,
 				1DEF284A3FE40DEA1B05F90F /* NotificationService.swift in Sources */,
 				A0E5B24A22F9E4716AA5BFF8 /* PersistenceService.swift in Sources */,
+				5371E6DC90D825782AD06756 /* SettingsView.swift in Sources */,
 				9410D765F3C060F77EFCDCAC /* StatsView.swift in Sources */,
 				A09E3378752459B3D83733F1 /* TodayView.swift in Sources */,
 			);

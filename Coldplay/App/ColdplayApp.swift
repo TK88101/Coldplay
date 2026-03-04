@@ -10,6 +10,7 @@ struct ColdplayApp: App {
         WindowGroup {
             ContentView()
                 .environment(AttendanceStore.shared)
+                .environment(LocalizationManager.shared)
         }
     }
 }
