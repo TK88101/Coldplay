@@ -20,7 +20,7 @@
 - **每日提醒** — 12:00 推送通知"今天上班吗？"
 - **Siri 语音** — "用 Coldplay 记录上班" / "用 Coldplay 记录休息"
 - **Confetti 特效** — 打卡成功后纸花庆祝动画
-- **SideStore 兼容** — 可打包 .ipa 导入 SideStore 自动续签，免去每周重装
+- **SideStore 兼容** — 可打包 .ipa 导入 SideStore 自动续签，免去每周重装。支持通过源 URL 一键安装和自动更新
 
 ## 截图
 
@@ -91,6 +91,23 @@ Coldplay/
     ├── MarkRestIntent.swift
     └── AttendanceShortcuts.swift
 ```
+
+## 通过 SideStore 安装
+
+无需 Apple Developer 账号，通过 SideStore 即可安装和自动更新。
+
+### 步骤
+
+1. 在 iPhone 上安装 [SideStore](https://sidestore.io/)
+2. 打开 SideStore → 「Sources」→ 点击右上角 `+`
+3. 粘贴源 URL：
+   ```
+   https://raw.githubusercontent.com/TK88101/Coldplay/main/distribution/source.json
+   ```
+4. 添加后在源列表中找到 Coldplay，点击「GET」安装
+5. 后续版本更新会自动出现在 SideStore 中
+
+> SideStore 会自动续签，免去每 7 天重装的麻烦。
 
 ## 已知限制
 
