@@ -51,3 +51,4 @@ Lightweight MVVM + Service Layer. Single-screen attendance tracking app.
 - **Multi-language UI** — supports Traditional Chinese (繁體中文) and Japanese (日本語), switchable in Settings. `LocalizationManager` handles all UI strings; `AppLanguage.locale` controls date formatting.
 - **Annual stats reset** — `totalStats` resets on Jan 1 each year. Historical years viewable via tapping stats bar.
 - **CSV auto-backup** — every mark triggers `autoBackup()` saving per-month CSV to Documents. Files visible in iOS Files app under "Coldplay".
+- **App icon** — Gemini AI-generated design: frosted glass calendar card with blue (work) / green (rest) dots on blue→green gradient background. 1024x1024 RGB PNG, no alpha. Located at `Coldplay/Assets.xcassets/AppIcon.appiconset/AppIcon.png`.
