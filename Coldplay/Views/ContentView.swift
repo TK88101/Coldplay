@@ -11,6 +11,9 @@ struct ContentView: View {
     @State private var backfillDate = Date()
     @State private var showSettings = false
     @State private var showYearlyStats = false
+    @State private var showOvertime = false
+    @State private var overtimeStart = Date()
+    @State private var overtimeEnd = Date()
     @Namespace private var glassNS
 
     private var todayRecord: AttendanceRecord? {
@@ -48,7 +51,7 @@ struct ContentView: View {
                 statusCard
                     .padding(.bottom, 32)
 
-                // 三个按钮 — 上班 / 休息 / 补打卡（垂直排列，胶囊形）
+                // 五个按钮 — 上班 / 加班 / 休息 / 年假 / 补打卡（垂直排列，胶囊形）
                 GlassEffectContainer(spacing: 14) {
                     VStack(spacing: 14) {
                         actionButton(
@@ -60,11 +63,29 @@ struct ContentView: View {
                         }
 
                         actionButton(
+                            label: loc.overtime,
+                            icon: "moon.fill",
+                            tint: .red
+                        ) {
+                            overtimeStart = Date()
+                            overtimeEnd = Date().addingTimeInterval(3600)
+                            showOvertime = true
+                        }
+
+                        actionButton(
                             label: loc.rest,
                             icon: "leaf.fill",
                             tint: .green
                         ) {
                             performMark(type: .rest)
+                        }
+
+                        actionButton(
+                            label: loc.annualLeave,
+                            icon: "airplane",
+                            tint: .purple
+                        ) {
+                            performMark(type: .annualLeave)
                         }
 
                         actionButton(
@@ -106,6 +127,9 @@ struct ContentView: View {
         .sheet(isPresented: $showBackfill) {
             backfillSheet
         }
+        .sheet(isPresented: $showOvertime) {
+            overtimeSheet
+        }
         .sheet(isPresented: $showSettings) {
             SettingsView()
                 .environment(loc)
@@ -119,9 +143,9 @@ struct ContentView: View {
     private var statusCard: some View {
         if let record = todayRecord {
             VStack(spacing: 12) {
-                Image(systemName: record.type == .work ? "briefcase.fill" : "leaf.fill")
+                Image(systemName: iconName(for: record.type))
                     .font(.system(size: 44, weight: .medium))
-                    .foregroundStyle(record.type == .work ? .blue : .green)
+                    .foregroundStyle(iconColor(for: record.type))
                     .symbolEffect(.breathe, isActive: !reduceMotion)
 
                 Text(loc.displayName(for: record.type))
@@ -207,7 +231,7 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                HStack(spacing: 20) {
+                HStack(spacing: 12) {
                     Button {
                         performBackfill(type: .work)
                     } label: {
@@ -225,6 +249,17 @@ struct ContentView: View {
                         Label(loc.rest, systemImage: "leaf.fill")
                             .font(.headline)
                             .foregroundStyle(.green)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                    }
+                    .glassEffect(.regular.interactive(), in: .capsule)
+
+                    Button {
+                        performBackfill(type: .annualLeave)
+                    } label: {
+                        Label(loc.annualLeave, systemImage: "airplane")
+                            .font(.headline)
+                            .foregroundStyle(.purple)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                     }
@@ -260,6 +295,77 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - 加班 Sheet
+
+    private var overtimeSheet: some View {
+        NavigationStack {
+            VStack(spacing: 32) {
+                Spacer()
+
+                DatePicker(
+                    loc.overtimeStart,
+                    selection: $overtimeStart,
+                    displayedComponents: .hourAndMinute
+                )
+                .datePickerStyle(.wheel)
+                .labelsHidden()
+
+                Text(loc.overtimeStart)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Divider().padding(.horizontal, 40)
+
+                DatePicker(
+                    loc.overtimeEnd,
+                    selection: $overtimeEnd,
+                    displayedComponents: .hourAndMinute
+                )
+                .datePickerStyle(.wheel)
+                .labelsHidden()
+
+                Text(loc.overtimeEnd)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Button {
+                    performOvertime()
+                } label: {
+                    Label(loc.confirm, systemImage: "checkmark")
+                        .font(.headline)
+                        .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                }
+                .glassEffect(.regular.interactive(), in: .capsule)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
+            }
+            .navigationTitle(loc.overtime)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(loc.cancel) { showOvertime = false }
+                }
+            }
+        }
+    }
+
+    private func performOvertime() {
+        Task {
+            let synced = await store.markOvertime(startTime: overtimeStart, endTime: overtimeEnd)
+            showOvertime = false
+            withAnimation(.bouncy) {
+                confettiTrigger += 1
+            }
+            toastMessage = synced ? loc.writtenToCalendar(loc.overtime) : loc.recorded(loc.overtime)
+            try? await Task.sleep(for: .seconds(2))
+            toastMessage = nil
+        }
+    }
+
     // MARK: - 统计栏（点击查看历年）
 
     private var statsBar: some View {
@@ -273,6 +379,10 @@ struct ContentView: View {
                 Divider().frame(height: 24)
                 Spacer()
                 statItem(label: loc.restDaysLabel, value: "\(stats.restDays) \(loc.daysUnit)", color: .green)
+                Spacer()
+                Divider().frame(height: 24)
+                Spacer()
+                statItem(label: loc.annualLeaveDaysLabel, value: "\(stats.annualLeaveDays) \(loc.daysUnit)", color: .purple)
                 Spacer()
                 Divider().frame(height: 24)
                 Spacer()
@@ -310,6 +420,14 @@ struct ContentView: View {
                                 Label("\(s.restDays) \(loc.daysUnit)", systemImage: "leaf.fill")
                                     .foregroundStyle(.green)
                                 Text(loc.restDaysLabel)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            VStack(alignment: .leading, spacing: 4) {
+                                Label("\(s.annualLeaveDays) \(loc.daysUnit)", systemImage: "airplane")
+                                    .foregroundStyle(.purple)
+                                Text(loc.annualLeaveDaysLabel)
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
@@ -358,6 +476,24 @@ struct ContentView: View {
             Text(label)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    // MARK: - 类型图标/颜色
+
+    private func iconName(for type: AttendanceType) -> String {
+        switch type {
+        case .work: return "briefcase.fill"
+        case .rest: return "leaf.fill"
+        case .annualLeave: return "airplane"
+        }
+    }
+
+    private func iconColor(for type: AttendanceType) -> Color {
+        switch type {
+        case .work: return .blue
+        case .rest: return .green
+        case .annualLeave: return .purple
         }
     }
 }

@@ -3,6 +3,7 @@ import Foundation
 enum AttendanceType: String, Codable, CaseIterable {
     case work = "上班"
     case rest = "休息"
+    case annualLeave = "年假"
 }
 
 struct AttendanceRecord: Codable, Identifiable {
@@ -35,5 +36,33 @@ struct AttendanceRecord: Codable, Identifiable {
     /// 返回该记录日期的标准化版本（去掉时分秒，仅保留年月日）
     var normalizedDate: Date {
         Calendar.current.startOfDay(for: date)
+    }
+}
+
+// MARK: - 加班记录（独立于考勤，同一天可多次加班）
+
+struct OvertimeRecord: Codable, Identifiable {
+    let id: UUID
+    let date: Date
+    let startTime: Date
+    let endTime: Date
+    let createdAt: Date
+
+    init(
+        id: UUID = UUID(),
+        date: Date,
+        startTime: Date,
+        endTime: Date,
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.date = date
+        self.startTime = startTime
+        self.endTime = endTime
+        self.createdAt = createdAt
+    }
+
+    var hours: Double {
+        endTime.timeIntervalSince(startTime) / 3600.0
     }
 }

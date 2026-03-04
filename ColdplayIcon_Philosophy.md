@@ -1,0 +1,17 @@
+# Celestial Mechanism
+
+A design philosophy of luminous orbital forms suspended in computational darkness.
+
+---
+
+## Philosophy
+
+Celestial Mechanism emerges from the intersection of astronomical precision and digital craft — where golden orbital rings, hewn from light itself, rotate around centers of quiet mystery. The aesthetic draws from the visual language of orreries, celestial instruments, and the warm amber glow of polished brass catching candlelight in a dark observatory. Every curve is meticulously crafted, every gradient the product of painstaking calibration — as though a master jeweler spent countless hours polishing each ring until it achieved perfect luminous continuity. The forms are heavy with material truth: golden tori, wooden spheres worn smooth by time, holographic droplets that refract impossible spectra.
+
+The darkness is not empty but alive — a deep slate field etched with the faintest ghost-traces of geometric networks and monospaced code fragments. These background murmurs suggest the invisible systems running beneath the surface: algorithms, data flows, the computational skeleton that animates the celestial forms above. The code text is never readable, never foreground — it exists as texture, as atmosphere, as the hum of machinery behind glass. This layering of depth requires the kind of expert-level compositional thinking that separates master work from mere decoration.
+
+Color operates on a strict thermal spectrum: warm golds and ambers for the primary orbital forms, cool slate-blue darkness for the void, and a single moment of holographic iridescence — rainbow light trapped in glass — as the emotional center. The palette is deliberately restrained: no more than four tonal families, each calibrated with the precision of a horologist adjusting spring tension. The warmth of the golden rings against the cold dark field creates a visual temperature contrast that draws the eye inward along concentric paths. Every chromatic decision reflects painstaking attention to atmospheric coherence.
+
+Composition follows orbital logic: concentric circles, nested crescents, forms that embrace and overlap with gravitational inevitability. The primary gesture is always circular — rings within rings, curves cradling curves — creating a sense of perpetual, slow rotation. Scale relationships are deliberate: a dominant outer ring frames the composition, while smaller interior elements (crescents, stars, droplets) create focal density at the center. Negative space is carved with surgical precision. The asymmetry within the circular symmetry — a wooden form here, a crescent there — prevents mechanical perfection, introducing the warmth of handcraft into the orbital geometry. This is work that could only come from someone at the absolute top of their field, laboring over every intersection and overlap until the composition achieves inevitable rightness.
+
+Light is the true medium. Every form is defined not by outline but by how it catches, bends, and emits luminance. The golden rings glow from within, casting soft halos onto the dark field. The holographic center refracts ambient light into spectral whispers. Shadows are warm and soft, never harsh — suggesting a single, distant, amber light source. This treatment of illumination must be meticulously crafted, each highlight placed with the care of a Renaissance painter building form through chiaroscuro. The result should feel less like a designed graphic and more like a physical object photographed under perfect lighting conditions.

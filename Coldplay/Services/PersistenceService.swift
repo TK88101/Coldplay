@@ -44,6 +44,37 @@ struct PersistenceService {
         }
     }
 
+    // MARK: - 加班记录 JSON
+
+    private var overtimeFileURL: URL {
+        fileURL.deletingLastPathComponent().appendingPathComponent("overtime.json")
+    }
+
+    func loadOvertime() -> [OvertimeRecord] {
+        guard FileManager.default.fileExists(atPath: overtimeFileURL.path) else { return [] }
+        do {
+            let data = try Data(contentsOf: overtimeFileURL)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            return try decoder.decode([OvertimeRecord].self, from: data)
+        } catch {
+            print("Failed to load overtime records: \(error)")
+            return []
+        }
+    }
+
+    func saveOvertime(_ records: [OvertimeRecord]) {
+        do {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            encoder.outputFormatting = .prettyPrinted
+            let data = try encoder.encode(records)
+            try data.write(to: overtimeFileURL, options: .atomic)
+        } catch {
+            print("Failed to save overtime records: \(error)")
+        }
+    }
+
     // MARK: - CSV 导出（全部记录）
 
     func exportCSV(_ records: [AttendanceRecord]) -> URL? {

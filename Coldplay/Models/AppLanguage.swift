@@ -56,6 +56,20 @@ final class LocalizationManager {
         }
     }
 
+    var annualLeave: String {
+        switch language {
+        case .zhHant: return "年假"
+        case .ja: return "年次休暇"
+        }
+    }
+
+    var overtime: String {
+        switch language {
+        case .zhHant: return "加班"
+        case .ja: return "残業"
+        }
+    }
+
     // MARK: - 主介面
 
     var notClockedIn: String {
@@ -125,6 +139,20 @@ final class LocalizationManager {
         }
     }
 
+    var annualLeaveDaysLabel: String {
+        switch language {
+        case .zhHant: return "年假"
+        case .ja: return "年休"
+        }
+    }
+
+    var overtimeLabel: String {
+        switch language {
+        case .zhHant: return "加班"
+        case .ja: return "残業"
+        }
+    }
+
     var hoursLabel: String {
         switch language {
         case .zhHant: return "工時"
@@ -159,6 +187,34 @@ final class LocalizationManager {
         switch language {
         case .zhHant: return "取消"
         case .ja: return "キャンセル"
+        }
+    }
+
+    var confirm: String {
+        switch language {
+        case .zhHant: return "確認"
+        case .ja: return "確認"
+        }
+    }
+
+    var overtimeStart: String {
+        switch language {
+        case .zhHant: return "開始時間"
+        case .ja: return "開始時刻"
+        }
+    }
+
+    var overtimeEnd: String {
+        switch language {
+        case .zhHant: return "結束時間"
+        case .ja: return "終了時刻"
+        }
+    }
+
+    var noOvertimeCalendar: String {
+        switch language {
+        case .zhHant: return "未找到「加班」日曆，請先在系統日曆中建立"
+        case .ja: return "「残業」カレンダーが見つかりません。システムカレンダーで作成してください"
         }
     }
 
@@ -223,6 +279,7 @@ final class LocalizationManager {
         switch type {
         case .work: return work
         case .rest: return rest
+        case .annualLeave: return annualLeave
         }
     }
 }

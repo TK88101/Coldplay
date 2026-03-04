@@ -7,6 +7,7 @@ final class AttendanceStore {
     static let shared = AttendanceStore()
 
     private(set) var records: [AttendanceRecord] = []
+    private(set) var overtimeRecords: [OvertimeRecord] = []
     private let persistence = PersistenceService()
     let calendar = CalendarService()
 
@@ -19,6 +20,7 @@ final class AttendanceStore {
 
     private init() {
         records = persistence.load()
+        overtimeRecords = persistence.loadOvertime()
         deduplicate()
     }
 
@@ -72,6 +74,18 @@ final class AttendanceStore {
         return await calendar.syncRecord(record)
     }
 
+    // MARK: - 加班
+
+    /// 记录加班并写入"加班"日历，返回日历是否写入成功
+    @discardableResult
+    func markOvertime(date: Date = Date(), startTime: Date, endTime: Date) async -> Bool {
+        let normalized = Calendar.current.startOfDay(for: date)
+        let record = OvertimeRecord(date: normalized, startTime: startTime, endTime: endTime)
+        overtimeRecords.append(record)
+        persistence.saveOvertime(overtimeRecords)
+        return await calendar.syncOvertime(date: normalized, startTime: startTime, endTime: endTime)
+    }
+
     // MARK: - 查询
 
     func record(for date: Date) -> AttendanceRecord? {
@@ -91,7 +105,22 @@ final class AttendanceStore {
     struct Stats {
         let workDays: Int
         let restDays: Int
+        let annualLeaveDays: Int
+        let overtimeHours: Double
         let totalHours: Double
+    }
+
+    private func overtimeHours(forYear year: Int) -> Double {
+        overtimeRecords
+            .filter { Calendar.current.component(.year, from: $0.date) == year }
+            .reduce(0) { $0 + $1.hours }
+    }
+
+    private func overtimeHours(forYear year: Int, month: Int) -> Double {
+        overtimeRecords.filter {
+            let c = Calendar.current.dateComponents([.year, .month], from: $0.date)
+            return c.year == year && c.month == month
+        }.reduce(0) { $0 + $1.hours }
     }
 
     /// 当年统计（每年 1/1 重置）
@@ -102,7 +131,9 @@ final class AttendanceStore {
         }
         let workCount = yearRecords.filter { $0.type == .work }.count
         let restCount = yearRecords.filter { $0.type == .rest }.count
-        return Stats(workDays: workCount, restDays: restCount, totalHours: Double(workCount) * 8.0)
+        let annualLeaveCount = yearRecords.filter { $0.type == .annualLeave }.count
+        let otHours = overtimeHours(forYear: currentYear)
+        return Stats(workDays: workCount, restDays: restCount, annualLeaveDays: annualLeaveCount, overtimeHours: otHours, totalHours: Double(workCount) * 8.0)
     }
 
     func stats(forYear year: Int) -> Stats {
@@ -111,14 +142,18 @@ final class AttendanceStore {
         }
         let workCount = yearRecords.filter { $0.type == .work }.count
         let restCount = yearRecords.filter { $0.type == .rest }.count
-        return Stats(workDays: workCount, restDays: restCount, totalHours: Double(workCount) * 8.0)
+        let annualLeaveCount = yearRecords.filter { $0.type == .annualLeave }.count
+        let otHours = overtimeHours(forYear: year)
+        return Stats(workDays: workCount, restDays: restCount, annualLeaveDays: annualLeaveCount, overtimeHours: otHours, totalHours: Double(workCount) * 8.0)
     }
 
     func stats(forYear year: Int, month: Int) -> Stats {
         let monthRecords = records(forYear: year, month: month)
         let workCount = monthRecords.filter { $0.type == .work }.count
         let restCount = monthRecords.filter { $0.type == .rest }.count
-        return Stats(workDays: workCount, restDays: restCount, totalHours: Double(workCount) * 8.0)
+        let annualLeaveCount = monthRecords.filter { $0.type == .annualLeave }.count
+        let otHours = overtimeHours(forYear: year, month: month)
+        return Stats(workDays: workCount, restDays: restCount, annualLeaveDays: annualLeaveCount, overtimeHours: otHours, totalHours: Double(workCount) * 8.0)
     }
 
     /// 所有有记录的年份（降序）

@@ -109,6 +109,7 @@ struct CalendarView: View {
         switch record?.type {
         case .work: return .blue
         case .rest: return .green
+        case .annualLeave: return .purple
         case nil: return .clear
         }
     }

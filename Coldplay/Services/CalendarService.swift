@@ -84,6 +84,11 @@ final class CalendarService {
             event.isAllDay = true
             event.startDate = record.normalizedDate
             event.endDate = record.normalizedDate
+        case .annualLeave:
+            event.title = "年假"
+            event.isAllDay = true
+            event.startDate = record.normalizedDate
+            event.endDate = record.normalizedDate
         }
 
         if let note = record.note {
@@ -97,6 +102,44 @@ final class CalendarService {
             return true
         } catch {
             print("Failed to save calendar event: \(error)")
+            return false
+        }
+    }
+
+    // MARK: - 加班（写入用户已有的"加班"日历）
+
+    private static let overtimeCalendarTitle = "加班"
+
+    /// 查找用户已有的"加班"日历
+    private func overtimeCalendar() -> EKCalendar? {
+        store.calendars(for: .event).first(where: { $0.title == Self.overtimeCalendarTitle })
+    }
+
+    /// 在"加班"日历中创建加班事件，返回是否成功
+    @discardableResult
+    func syncOvertime(date: Date, startTime: Date, endTime: Date) async -> Bool {
+        if !hasAccess {
+            let granted = await requestAccess()
+            guard granted else { return false }
+        }
+
+        guard let calendar = overtimeCalendar() else {
+            print("未找到「加班」日历，请先在系统日历中创建")
+            return false
+        }
+
+        let event = EKEvent(eventStore: store)
+        event.calendar = calendar
+        event.title = "加班"
+        event.startDate = startTime
+        event.endDate = endTime
+        event.url = URL(string: "coldplay://overtime")
+
+        do {
+            try store.save(event, span: .thisEvent)
+            return true
+        } catch {
+            print("Failed to save overtime event: \(error)")
             return false
         }
     }
