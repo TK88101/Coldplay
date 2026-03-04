@@ -20,5 +20,7 @@
 	<string>1</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>考勤助手需要访问您的日历来同步上班和休息记录</string>
+	<key>UILaunchScreen</key>
+	<dict/>
 </dict>
 </plist>
