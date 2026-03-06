@@ -15,6 +15,9 @@ struct ContentView: View {
     @State private var overtimeStart = Date()
     @State private var overtimeEnd = Date()
     @State private var showRestChoice = false
+    @State private var showBackfillOvertime = false
+    @State private var backfillOvertimeStart = Date()
+    @State private var backfillOvertimeEnd = Date()
     @Namespace private var glassNS
 
     private var todayRecord: AttendanceRecord? {
@@ -127,6 +130,9 @@ struct ContentView: View {
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: toastMessage)
         .sheet(isPresented: $showBackfill) {
             backfillSheet
+                .sheet(isPresented: $showBackfillOvertime) {
+                    backfillOvertimeSheet
+                }
         }
         .sheet(isPresented: $showOvertime) {
             overtimeSheet
@@ -225,7 +231,7 @@ struct ContentView: View {
 
     private var backfillSheet: some View {
         NavigationStack {
-            VStack(spacing: 24) {
+            VStack(spacing: 12) {
                 DatePicker(
                     loc.selectDate,
                     selection: $backfillDate,
@@ -233,7 +239,6 @@ struct ContentView: View {
                     displayedComponents: .date
                 )
                 .datePickerStyle(.graphical)
-                .padding(.horizontal)
 
                 if let existing = store.record(for: backfillDate) {
                     Text(loc.alreadyMarked(loc.displayName(for: existing.type)))
@@ -241,58 +246,58 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                VStack(spacing: 12) {
-                    HStack(spacing: 12) {
-                        Button {
-                            performBackfill(type: .work)
-                        } label: {
-                            Label(loc.work, systemImage: "briefcase.fill")
-                                .font(.headline)
-                                .foregroundStyle(.blue)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                        }
-                        .glassEffect(.regular.interactive(), in: .capsule)
-
-                        Button {
-                            performBackfill(type: .rest)
-                        } label: {
-                            Label(loc.rest, systemImage: "leaf.fill")
-                                .font(.headline)
-                                .foregroundStyle(.green)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                        }
-                        .glassEffect(.regular.interactive(), in: .capsule)
+                VStack(spacing: 8) {
+                    Button { performBackfill(type: .work) } label: {
+                        Label(loc.work, systemImage: "briefcase.fill")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(.blue)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
                     }
+                    .glassEffect(.regular.interactive(), in: .capsule)
 
-                    HStack(spacing: 12) {
-                        Button {
-                            performBackfill(type: .annualLeave)
-                        } label: {
-                            Label(loc.annualLeave, systemImage: "airplane")
-                                .font(.headline)
-                                .foregroundStyle(.purple)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                        }
-                        .glassEffect(.regular.interactive(), in: .capsule)
-
-                        Button {
-                            performBackfill(type: .compensatoryRest)
-                        } label: {
-                            Label(loc.compensatoryRest, systemImage: "arrow.triangle.2.circlepath")
-                                .font(.headline)
-                                .foregroundStyle(.orange)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                        }
-                        .glassEffect(.regular.interactive(), in: .capsule)
+                    Button {
+                        backfillOvertimeStart = Calendar.current.date(bySettingHour: 18, minute: 0, second: 0, of: backfillDate) ?? backfillDate
+                        backfillOvertimeEnd = Calendar.current.date(bySettingHour: 22, minute: 0, second: 0, of: backfillDate) ?? backfillDate
+                        showBackfillOvertime = true
+                    } label: {
+                        Label(loc.overtime, systemImage: "moon.fill")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(.red)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
                     }
+                    .glassEffect(.regular.interactive(), in: .capsule)
+
+                    Button { performBackfill(type: .rest) } label: {
+                        Label(loc.rest, systemImage: "leaf.fill")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(.green)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                    }
+                    .glassEffect(.regular.interactive(), in: .capsule)
+
+                    Button { performBackfill(type: .annualLeave) } label: {
+                        Label(loc.annualLeave, systemImage: "airplane")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(.purple)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                    }
+                    .glassEffect(.regular.interactive(), in: .capsule)
+
+                    Button { performBackfill(type: .compensatoryRest) } label: {
+                        Label(loc.compensatoryRest, systemImage: "arrow.triangle.2.circlepath")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(.orange)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                    }
+                    .glassEffect(.regular.interactive(), in: .capsule)
                 }
                 .padding(.horizontal, 24)
-
-                Spacer()
+                .padding(.bottom, 16)
             }
             .navigationTitle(loc.backfill)
             .navigationBarTitleDisplayMode(.inline)
@@ -315,6 +320,81 @@ struct ContentView: View {
             let dateStr = backfillDate.formatted(.dateTime.month(.abbreviated).day().locale(loc.language.locale))
             let label = loc.displayName(for: type)
             toastMessage = synced ? loc.backfillWritten(date: dateStr, label: label) : loc.backfillRecorded(date: dateStr, label: label)
+            try? await Task.sleep(for: .seconds(2))
+            toastMessage = nil
+        }
+    }
+
+    // MARK: - 补打卡加班 Sheet
+
+    private var backfillOvertimeSheet: some View {
+        NavigationStack {
+            VStack(spacing: 32) {
+                Spacer()
+
+                DatePicker(
+                    loc.overtimeStart,
+                    selection: $backfillOvertimeStart,
+                    displayedComponents: .hourAndMinute
+                )
+                .datePickerStyle(.wheel)
+                .labelsHidden()
+
+                Text(loc.overtimeStart)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Divider().padding(.horizontal, 40)
+
+                DatePicker(
+                    loc.overtimeEnd,
+                    selection: $backfillOvertimeEnd,
+                    displayedComponents: .hourAndMinute
+                )
+                .datePickerStyle(.wheel)
+                .labelsHidden()
+
+                Text(loc.overtimeEnd)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Button {
+                    performBackfillOvertime()
+                } label: {
+                    Label(loc.confirm, systemImage: "checkmark")
+                        .font(.headline)
+                        .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                }
+                .glassEffect(.regular.interactive(), in: .capsule)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
+            }
+            .navigationTitle(loc.overtime)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(loc.cancel) {
+                        showBackfillOvertime = false
+                    }
+                }
+            }
+        }
+    }
+
+    private func performBackfillOvertime() {
+        Task {
+            let synced = await store.markOvertime(date: backfillDate, startTime: backfillOvertimeStart, endTime: backfillOvertimeEnd)
+            showBackfillOvertime = false
+            showBackfill = false
+            withAnimation(.bouncy) {
+                confettiTrigger += 1
+            }
+            let dateStr = backfillDate.formatted(.dateTime.month(.abbreviated).day().locale(loc.language.locale))
+            toastMessage = synced ? loc.backfillWritten(date: dateStr, label: loc.overtime) : loc.backfillRecorded(date: dateStr, label: loc.overtime)
             try? await Task.sleep(for: .seconds(2))
             toastMessage = nil
         }
@@ -399,19 +479,19 @@ struct ContentView: View {
             showYearlyStats = true
         } label: {
             HStack(spacing: 0) {
-                statItem(label: loc.workDaysLabel, value: "\(stats.workDays)\(loc.daysUnit)(\(stats.overtimeDays))", color: .blue)
+                statItem(label: loc.workDaysLabel, value: "\(stats.workDays) \(loc.daysUnit)", color: .blue)
                 Spacer()
                 Divider().frame(height: 24)
                 Spacer()
-                statItem(label: loc.remainingLeaveLabel, value: "\(stats.remainingLeave) \(loc.daysUnit)", color: .purple)
-                Spacer()
-                Divider().frame(height: 24)
-                Spacer()
-                statItem(label: loc.overtimeDaysLabel, value: "\(stats.overtimeDays) \(loc.daysUnit)", color: .red)
+                statItem(label: loc.overtimeDaysLabel, value: stats.overtimeDays > 0 ? "\(stats.overtimeDays) \(loc.daysUnit)" : "\(Int(stats.overtimeHours))h", color: .red)
                 Spacer()
                 Divider().frame(height: 24)
                 Spacer()
                 statItem(label: loc.restDaysLabel, value: "\(stats.restDays) \(loc.daysUnit)", color: .green)
+                Spacer()
+                Divider().frame(height: 24)
+                Spacer()
+                statItem(label: loc.remainingLeaveLabel, value: "\(stats.remainingLeave) \(loc.daysUnit)", color: .purple)
             }
             .padding(.horizontal, 28)
             .frame(maxWidth: .infinity)

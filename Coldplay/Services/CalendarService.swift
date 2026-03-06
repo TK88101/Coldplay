@@ -50,19 +50,52 @@ final class CalendarService {
         }
     }
 
-    /// 在"考勤"日历中创建/更新考勤事件，返回是否成功
+    /// 清除该天在所有考勤相关日历中的旧事件（考勤 + 年假），避免切换类型时残留
+    private func removeAllAttendanceEvents(on date: Date) {
+        if let cal = attendanceCalendar() {
+            removeEvents(on: date, in: cal)
+        }
+        if let cal = annualLeaveCalendar() {
+            removeEvents(on: date, in: cal)
+        }
+    }
+
+    /// 创建/更新考勤事件，返回是否成功
     @discardableResult
     func syncRecord(_ record: AttendanceRecord) async -> Bool {
-        // 如果没权限，先请求一次
         if !hasAccess {
             let granted = await requestAccess()
             guard granted else { return false }
         }
 
-        guard let calendar = attendanceCalendar() else { return false }
+        // 先清除所有相关日历中该天的旧事件
+        removeAllAttendanceEvents(on: record.normalizedDate)
 
-        // 先删除同一天的旧事件
-        removeEvents(on: record.normalizedDate, in: calendar)
+        // 年假写入用户已有的「年假」日历
+        if record.type == .annualLeave {
+            guard let alCalendar = annualLeaveCalendar() else {
+                print("未找到「年假」日历，请先在系统日历中创建")
+                return false
+            }
+            let event = EKEvent(eventStore: store)
+            event.calendar = alCalendar
+            event.title = "年假"
+            event.isAllDay = true
+            event.startDate = record.normalizedDate
+            event.endDate = record.normalizedDate
+            if let note = record.note { event.notes = note }
+            event.url = URL(string: "coldplay://attendance")
+            do {
+                try store.save(event, span: .thisEvent)
+                return true
+            } catch {
+                print("Failed to save annual leave event: \(error)")
+                return false
+            }
+        }
+
+        // 其他类型写入「考勤」日历
+        guard let calendar = attendanceCalendar() else { return false }
 
         let event = EKEvent(eventStore: store)
         event.calendar = calendar
@@ -84,16 +117,13 @@ final class CalendarService {
             event.isAllDay = true
             event.startDate = record.normalizedDate
             event.endDate = record.normalizedDate
-        case .annualLeave:
-            event.title = "年假"
-            event.isAllDay = true
-            event.startDate = record.normalizedDate
-            event.endDate = record.normalizedDate
         case .compensatoryRest:
             event.title = "補休"
             event.isAllDay = true
             event.startDate = record.normalizedDate
             event.endDate = record.normalizedDate
+        case .annualLeave:
+            break // handled above
         }
 
         if let note = record.note {
@@ -114,10 +144,16 @@ final class CalendarService {
     // MARK: - 加班（写入用户已有的"加班"日历）
 
     private static let overtimeCalendarTitle = "加班"
+    private static let annualLeaveCalendarTitle = "年假"
 
     /// 查找用户已有的"加班"日历
     private func overtimeCalendar() -> EKCalendar? {
         store.calendars(for: .event).first(where: { $0.title == Self.overtimeCalendarTitle })
+    }
+
+    /// 查找用户已有的"年假"日历
+    private func annualLeaveCalendar() -> EKCalendar? {
+        store.calendars(for: .event).first(where: { $0.title == Self.annualLeaveCalendarTitle })
     }
 
     /// 在"加班"日历中创建加班事件，返回是否成功
