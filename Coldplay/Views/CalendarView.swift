@@ -110,6 +110,7 @@ struct CalendarView: View {
         case .work: return .blue
         case .rest: return .green
         case .annualLeave: return .purple
+        case .compensatoryRest: return .orange
         case nil: return .clear
         }
     }

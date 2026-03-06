@@ -70,6 +70,13 @@ final class LocalizationManager {
         }
     }
 
+    var compensatoryRest: String {
+        switch language {
+        case .zhHant: return "補休"
+        case .ja: return "代休"
+        }
+    }
+
     // MARK: - 主介面
 
     var notClockedIn: String {
@@ -150,6 +157,41 @@ final class LocalizationManager {
         switch language {
         case .zhHant: return "加班"
         case .ja: return "残業"
+        }
+    }
+
+    var compensatoryRestLabel: String {
+        switch language {
+        case .zhHant: return "補休"
+        case .ja: return "代休"
+        }
+    }
+
+    var remainingLeaveLabel: String {
+        switch language {
+        case .zhHant: return "剩餘可休"
+        case .ja: return "残り休暇"
+        }
+    }
+
+    var overtimeDaysLabel: String {
+        switch language {
+        case .zhHant: return "加班天數"
+        case .ja: return "残業日数"
+        }
+    }
+
+    var normalRest: String {
+        switch language {
+        case .zhHant: return "正常休息"
+        case .ja: return "通常休み"
+        }
+    }
+
+    var compensatoryRestChoice: String {
+        switch language {
+        case .zhHant: return "還休（扣加班）"
+        case .ja: return "代休（残業から差引）"
         }
     }
 
@@ -250,6 +292,20 @@ final class LocalizationManager {
         }
     }
 
+    var fiscalYearLabel: String {
+        switch language {
+        case .zhHant: return "年度"
+        case .ja: return "年度"
+        }
+    }
+
+    var currentFiscalYearTag: String {
+        switch language {
+        case .zhHant: return "本年度"
+        case .ja: return "今年度"
+        }
+    }
+
     // MARK: - 数据
 
     var dataLabel: String {
@@ -280,6 +336,7 @@ final class LocalizationManager {
         case .work: return work
         case .rest: return rest
         case .annualLeave: return annualLeave
+        case .compensatoryRest: return compensatoryRest
         }
     }
 }

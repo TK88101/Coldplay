@@ -14,6 +14,7 @@ struct ContentView: View {
     @State private var showOvertime = false
     @State private var overtimeStart = Date()
     @State private var overtimeEnd = Date()
+    @State private var showRestChoice = false
     @Namespace private var glassNS
 
     private var todayRecord: AttendanceRecord? {
@@ -77,7 +78,7 @@ struct ContentView: View {
                             icon: "leaf.fill",
                             tint: .green
                         ) {
-                            performMark(type: .rest)
+                            showRestChoice = true
                         }
 
                         actionButton(
@@ -129,6 +130,15 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showOvertime) {
             overtimeSheet
+        }
+        .confirmationDialog(loc.rest, isPresented: $showRestChoice) {
+            Button(loc.normalRest) {
+                performMark(type: .rest)
+            }
+            Button(loc.compensatoryRestChoice) {
+                performMark(type: .compensatoryRest)
+            }
+            Button(loc.cancel, role: .cancel) { }
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
@@ -231,39 +241,54 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                HStack(spacing: 12) {
-                    Button {
-                        performBackfill(type: .work)
-                    } label: {
-                        Label(loc.work, systemImage: "briefcase.fill")
-                            .font(.headline)
-                            .foregroundStyle(.blue)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                    }
-                    .glassEffect(.regular.interactive(), in: .capsule)
+                VStack(spacing: 12) {
+                    HStack(spacing: 12) {
+                        Button {
+                            performBackfill(type: .work)
+                        } label: {
+                            Label(loc.work, systemImage: "briefcase.fill")
+                                .font(.headline)
+                                .foregroundStyle(.blue)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                        }
+                        .glassEffect(.regular.interactive(), in: .capsule)
 
-                    Button {
-                        performBackfill(type: .rest)
-                    } label: {
-                        Label(loc.rest, systemImage: "leaf.fill")
-                            .font(.headline)
-                            .foregroundStyle(.green)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
+                        Button {
+                            performBackfill(type: .rest)
+                        } label: {
+                            Label(loc.rest, systemImage: "leaf.fill")
+                                .font(.headline)
+                                .foregroundStyle(.green)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                        }
+                        .glassEffect(.regular.interactive(), in: .capsule)
                     }
-                    .glassEffect(.regular.interactive(), in: .capsule)
 
-                    Button {
-                        performBackfill(type: .annualLeave)
-                    } label: {
-                        Label(loc.annualLeave, systemImage: "airplane")
-                            .font(.headline)
-                            .foregroundStyle(.purple)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
+                    HStack(spacing: 12) {
+                        Button {
+                            performBackfill(type: .annualLeave)
+                        } label: {
+                            Label(loc.annualLeave, systemImage: "airplane")
+                                .font(.headline)
+                                .foregroundStyle(.purple)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                        }
+                        .glassEffect(.regular.interactive(), in: .capsule)
+
+                        Button {
+                            performBackfill(type: .compensatoryRest)
+                        } label: {
+                            Label(loc.compensatoryRest, systemImage: "arrow.triangle.2.circlepath")
+                                .font(.headline)
+                                .foregroundStyle(.orange)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                        }
+                        .glassEffect(.regular.interactive(), in: .capsule)
                     }
-                    .glassEffect(.regular.interactive(), in: .capsule)
                 }
                 .padding(.horizontal, 24)
 
@@ -374,19 +399,19 @@ struct ContentView: View {
             showYearlyStats = true
         } label: {
             HStack(spacing: 0) {
-                statItem(label: loc.workDaysLabel, value: "\(stats.workDays) \(loc.daysUnit)", color: .blue)
+                statItem(label: loc.workDaysLabel, value: "\(stats.workDays)\(loc.daysUnit)(\(stats.overtimeDays))", color: .blue)
+                Spacer()
+                Divider().frame(height: 24)
+                Spacer()
+                statItem(label: loc.remainingLeaveLabel, value: "\(stats.remainingLeave) \(loc.daysUnit)", color: .purple)
+                Spacer()
+                Divider().frame(height: 24)
+                Spacer()
+                statItem(label: loc.overtimeDaysLabel, value: "\(stats.overtimeDays) \(loc.daysUnit)", color: .red)
                 Spacer()
                 Divider().frame(height: 24)
                 Spacer()
                 statItem(label: loc.restDaysLabel, value: "\(stats.restDays) \(loc.daysUnit)", color: .green)
-                Spacer()
-                Divider().frame(height: 24)
-                Spacer()
-                statItem(label: loc.annualLeaveDaysLabel, value: "\(stats.annualLeaveDays) \(loc.daysUnit)", color: .purple)
-                Spacer()
-                Divider().frame(height: 24)
-                Spacer()
-                statItem(label: loc.hoursLabel, value: "\(Int(stats.totalHours))h", color: .primary)
             }
             .padding(.horizontal, 28)
             .frame(maxWidth: .infinity)
@@ -401,51 +426,72 @@ struct ContentView: View {
     // MARK: - 历年统计 Sheet
 
     private var yearlyStatsSheet: some View {
-        NavigationStack {
+        let currentMonth = Calendar.current.component(.month, from: Date())
+        let currentCalYear = Calendar.current.component(.year, from: Date())
+        let currentFY = currentMonth >= 4 ? currentCalYear : currentCalYear - 1
+        return NavigationStack {
             List {
                 ForEach(store.availableYears, id: \.self) { year in
-                    let s = store.stats(forYear: year)
-                    let currentYear = Calendar.current.component(.year, from: Date())
+                    let s = store.stats(forFiscalYear: year)
                     Section {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Label("\(s.workDays) \(loc.daysUnit)", systemImage: "briefcase.fill")
-                                    .foregroundStyle(.blue)
-                                Text(loc.workDaysLabel)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
+                        VStack(spacing: 8) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Label("\(s.workDays) \(loc.daysUnit)", systemImage: "briefcase.fill")
+                                        .foregroundStyle(.blue)
+                                    Text(loc.workDaysLabel)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Label("\(s.restDays) \(loc.daysUnit)", systemImage: "leaf.fill")
+                                        .foregroundStyle(.green)
+                                    Text(loc.restDaysLabel)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Label("\(s.overtimeDays) \(loc.daysUnit)", systemImage: "moon.fill")
+                                        .foregroundStyle(.red)
+                                    Text(loc.overtimeDaysLabel)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
-                            Spacer()
-                            VStack(alignment: .leading, spacing: 4) {
-                                Label("\(s.restDays) \(loc.daysUnit)", systemImage: "leaf.fill")
-                                    .foregroundStyle(.green)
-                                Text(loc.restDaysLabel)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            VStack(alignment: .leading, spacing: 4) {
-                                Label("\(s.annualLeaveDays) \(loc.daysUnit)", systemImage: "airplane")
-                                    .foregroundStyle(.purple)
-                                Text(loc.annualLeaveDaysLabel)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            VStack(alignment: .leading, spacing: 4) {
-                                Label("\(Int(s.totalHours))h", systemImage: "clock")
-                                    .foregroundStyle(.primary)
-                                Text(loc.hoursLabel)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Label("\(s.annualLeaveDays) \(loc.daysUnit)", systemImage: "airplane")
+                                        .foregroundStyle(.purple)
+                                    Text(loc.annualLeaveDaysLabel)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Label("\(s.compensatoryRestDays) \(loc.daysUnit)", systemImage: "arrow.triangle.2.circlepath")
+                                        .foregroundStyle(.orange)
+                                    Text(loc.compensatoryRestLabel)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Label("\(s.remainingLeave) \(loc.daysUnit)", systemImage: "calendar.badge.clock")
+                                        .foregroundStyle(.teal)
+                                    Text(loc.remainingLeaveLabel)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
                     } header: {
                         HStack {
-                            Text("\(String(year)) \(loc.yearLabel)")
+                            Text("\(String(year))\(loc.fiscalYearLabel)")
                                 .font(.headline)
-                            if year == currentYear {
-                                Text(loc.currentYearTag)
+                            if year == currentFY {
+                                Text(loc.currentFiscalYearTag)
                                     .font(.caption2)
                                     .foregroundStyle(.blue)
                             }
@@ -486,6 +532,7 @@ struct ContentView: View {
         case .work: return "briefcase.fill"
         case .rest: return "leaf.fill"
         case .annualLeave: return "airplane"
+        case .compensatoryRest: return "arrow.triangle.2.circlepath"
         }
     }
 
@@ -494,6 +541,7 @@ struct ContentView: View {
         case .work: return .blue
         case .rest: return .green
         case .annualLeave: return .purple
+        case .compensatoryRest: return .orange
         }
     }
 }

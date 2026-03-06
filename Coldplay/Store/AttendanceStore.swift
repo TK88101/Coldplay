@@ -105,14 +105,44 @@ final class AttendanceStore {
     struct Stats {
         let workDays: Int
         let restDays: Int
+        let compensatoryRestDays: Int
         let annualLeaveDays: Int
         let overtimeHours: Double
+        let overtimeDays: Int          // overtimeHours / 8, floored
+        let remainingLeave: Int        // (10 + overtimeDays) - annualLeaveDays - compensatoryRestDays
         let totalHours: Double
     }
 
-    private func overtimeHours(forYear year: Int) -> Double {
+    /// Fiscal year runs Apr 1 – Mar 31. Returns the year of the April start.
+    /// e.g. 2026-01-15 → fiscal year 2025 (Apr 2025 – Mar 2026)
+    /// e.g. 2026-05-01 → fiscal year 2026 (Apr 2026 – Mar 2027)
+    private func fiscalYear(for date: Date) -> Int {
+        let cal = Calendar.current
+        let month = cal.component(.month, from: date)
+        let year = cal.component(.year, from: date)
+        return month >= 4 ? year : year - 1
+    }
+
+    /// Returns the start date (Apr 1) of the given fiscal year
+    private func fiscalYearStart(_ fy: Int) -> Date {
+        Calendar.current.date(from: DateComponents(year: fy, month: 4, day: 1))!
+    }
+
+    /// Returns the end date (Mar 31 next year) of the given fiscal year
+    private func fiscalYearEnd(_ fy: Int) -> Date {
+        Calendar.current.date(from: DateComponents(year: fy + 1, month: 3, day: 31))!
+    }
+
+    /// Check if a date falls within a fiscal year
+    private func isDate(_ date: Date, inFiscalYear fy: Int) -> Bool {
+        let start = fiscalYearStart(fy)
+        let end = Calendar.current.date(byAdding: .day, value: 1, to: fiscalYearEnd(fy))!
+        return date >= start && date < end
+    }
+
+    private func overtimeHours(forFiscalYear fy: Int) -> Double {
         overtimeRecords
-            .filter { Calendar.current.component(.year, from: $0.date) == year }
+            .filter { isDate($0.date, inFiscalYear: fy) }
             .reduce(0) { $0 + $1.hours }
     }
 
@@ -123,42 +153,57 @@ final class AttendanceStore {
         }.reduce(0) { $0 + $1.hours }
     }
 
-    /// 当年统计（每年 1/1 重置）
+    /// 当年度统计（会计年度 4/1 – 3/31）
     var totalStats: Stats {
-        let currentYear = Calendar.current.component(.year, from: Date())
-        let yearRecords = records.filter {
-            Calendar.current.component(.year, from: $0.date) == currentYear
-        }
-        let workCount = yearRecords.filter { $0.type == .work }.count
-        let restCount = yearRecords.filter { $0.type == .rest }.count
-        let annualLeaveCount = yearRecords.filter { $0.type == .annualLeave }.count
-        let otHours = overtimeHours(forYear: currentYear)
-        return Stats(workDays: workCount, restDays: restCount, annualLeaveDays: annualLeaveCount, overtimeHours: otHours, totalHours: Double(workCount) * 8.0)
+        let currentFY = fiscalYear(for: Date())
+        return stats(forFiscalYear: currentFY)
     }
 
-    func stats(forYear year: Int) -> Stats {
-        let yearRecords = records.filter {
-            Calendar.current.component(.year, from: $0.date) == year
-        }
-        let workCount = yearRecords.filter { $0.type == .work }.count
-        let restCount = yearRecords.filter { $0.type == .rest }.count
-        let annualLeaveCount = yearRecords.filter { $0.type == .annualLeave }.count
-        let otHours = overtimeHours(forYear: year)
-        return Stats(workDays: workCount, restDays: restCount, annualLeaveDays: annualLeaveCount, overtimeHours: otHours, totalHours: Double(workCount) * 8.0)
+    func stats(forFiscalYear fy: Int) -> Stats {
+        let fyRecords = records.filter { isDate($0.date, inFiscalYear: fy) }
+        let workCount = fyRecords.filter { $0.type == .work }.count
+        let restCount = fyRecords.filter { $0.type == .rest }.count
+        let compensatoryRestCount = fyRecords.filter { $0.type == .compensatoryRest }.count
+        let annualLeaveCount = fyRecords.filter { $0.type == .annualLeave }.count
+        let otHours = overtimeHours(forFiscalYear: fy)
+        let otDays = Int(otHours / 8.0)
+        let remaining = max(0, (10 + otDays) - annualLeaveCount - compensatoryRestCount)
+        return Stats(
+            workDays: workCount,
+            restDays: restCount,
+            compensatoryRestDays: compensatoryRestCount,
+            annualLeaveDays: annualLeaveCount,
+            overtimeHours: otHours,
+            overtimeDays: otDays,
+            remainingLeave: remaining,
+            totalHours: Double(workCount) * 8.0
+        )
     }
 
     func stats(forYear year: Int, month: Int) -> Stats {
         let monthRecords = records(forYear: year, month: month)
         let workCount = monthRecords.filter { $0.type == .work }.count
         let restCount = monthRecords.filter { $0.type == .rest }.count
+        let compensatoryRestCount = monthRecords.filter { $0.type == .compensatoryRest }.count
         let annualLeaveCount = monthRecords.filter { $0.type == .annualLeave }.count
         let otHours = overtimeHours(forYear: year, month: month)
-        return Stats(workDays: workCount, restDays: restCount, annualLeaveDays: annualLeaveCount, overtimeHours: otHours, totalHours: Double(workCount) * 8.0)
+        let otDays = Int(otHours / 8.0)
+        let remaining = max(0, (10 + otDays) - annualLeaveCount - compensatoryRestCount)
+        return Stats(
+            workDays: workCount,
+            restDays: restCount,
+            compensatoryRestDays: compensatoryRestCount,
+            annualLeaveDays: annualLeaveCount,
+            overtimeHours: otHours,
+            overtimeDays: otDays,
+            remainingLeave: remaining,
+            totalHours: Double(workCount) * 8.0
+        )
     }
 
-    /// 所有有记录的年份（降序）
+    /// 所有有记录的会计年度（降序）
     var availableYears: [Int] {
-        let years = Set(records.map { Calendar.current.component(.year, from: $0.date) })
+        let years = Set(records.map { fiscalYear(for: $0.date) })
         return years.sorted(by: >)
     }
 

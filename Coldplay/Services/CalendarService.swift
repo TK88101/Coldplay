@@ -89,6 +89,11 @@ final class CalendarService {
             event.isAllDay = true
             event.startDate = record.normalizedDate
             event.endDate = record.normalizedDate
+        case .compensatoryRest:
+            event.title = "補休"
+            event.isAllDay = true
+            event.startDate = record.normalizedDate
+            event.endDate = record.normalizedDate
         }
 
         if let note = record.note {

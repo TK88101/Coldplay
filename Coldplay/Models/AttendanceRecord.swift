@@ -4,6 +4,7 @@ enum AttendanceType: String, Codable, CaseIterable {
     case work = "上班"
     case rest = "休息"
     case annualLeave = "年假"
+    case compensatoryRest = "補休"
 }
 
 struct AttendanceRecord: Codable, Identifiable {
