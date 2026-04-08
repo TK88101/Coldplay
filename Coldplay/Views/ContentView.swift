@@ -18,6 +18,7 @@ struct ContentView: View {
     @State private var showBackfillOvertime = false
     @State private var backfillOvertimeStart = Date()
     @State private var backfillOvertimeEnd = Date()
+    @State private var showCalendarPermissionAlert = false
     @Namespace private var glassNS
 
     private var todayRecord: AttendanceRecord? {
@@ -150,6 +151,22 @@ struct ContentView: View {
             SettingsView()
                 .environment(loc)
                 .environment(store)
+        }
+        .task {
+            let granted = await store.calendar.requestAccess()
+            if !granted && store.calendar.isDenied {
+                showCalendarPermissionAlert = true
+            }
+        }
+        .alert(loc.calendarPermissionTitle, isPresented: $showCalendarPermissionAlert) {
+            Button(loc.openSettings) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button(loc.cancel, role: .cancel) { }
+        } message: {
+            Text(loc.calendarPermissionMessage)
         }
     }
 

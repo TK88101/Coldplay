@@ -100,6 +100,27 @@ final class LocalizationManager {
         }
     }
 
+    var calendarPermissionTitle: String {
+        switch language {
+        case .zhHant: return "需要日曆權限"
+        case .ja: return "カレンダーへのアクセスが必要です"
+        }
+    }
+
+    var calendarPermissionMessage: String {
+        switch language {
+        case .zhHant: return "請在設定中開啟日曆權限，以便將考勤記錄同步到日曆。"
+        case .ja: return "勤怠記録をカレンダーに同期するには、設定でカレンダーへのアクセスを許可してください。"
+        }
+    }
+
+    var openSettings: String {
+        switch language {
+        case .zhHant: return "前往設定"
+        case .ja: return "設定を開く"
+        }
+    }
+
     // MARK: - Toast
 
     func writtenToCalendar(_ label: String) -> String {

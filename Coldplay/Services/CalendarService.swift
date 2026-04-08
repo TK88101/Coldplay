@@ -2,18 +2,31 @@ import EventKit
 
 @MainActor
 final class CalendarService {
-    private let store = EKEventStore()
+    private var store = EKEventStore()
     private static let calendarTitle = "考勤"
 
     var hasAccess: Bool {
         EKEventStore.authorizationStatus(for: .event) == .fullAccess
     }
 
+    /// True when user has explicitly denied calendar access (needs Settings redirect)
+    var isDenied: Bool {
+        let status = EKEventStore.authorizationStatus(for: .event)
+        return status == .denied || status == .restricted
+    }
+
     /// App 启动时调用，请求日历权限
     func requestAccess() async -> Bool {
         guard !hasAccess else { return true }
+        // If already denied, the system won't show a prompt — caller should direct user to Settings
+        guard !isDenied else { return false }
         do {
-            return try await store.requestFullAccessToEvents()
+            let granted = try await store.requestFullAccessToEvents()
+            if granted {
+                // Reinitialize store so sources/calendars reflect the new permission
+                store = EKEventStore()
+            }
+            return granted
         } catch {
             print("Calendar access request failed: \(error)")
             return false
@@ -30,15 +43,25 @@ final class CalendarService {
         calendar.title = Self.calendarTitle
         calendar.cgColor = CGColor(red: 0.2, green: 0.5, blue: 1.0, alpha: 1.0)
 
-        // 优先 iCloud，其次本地
+        // If sources are empty, reinitialize store to pick up available sources
+        if store.sources.isEmpty {
+            store = EKEventStore()
+        }
+
+        // 优先 iCloud，其次本地，最后默认日历的 source
         if let source = store.sources.first(where: { $0.sourceType == .calDAV && $0.title.contains("iCloud") }) {
             calendar.source = source
         } else if let source = store.sources.first(where: { $0.sourceType == .local }) {
             calendar.source = source
         } else if let source = store.sources.first(where: { $0.sourceType == .calDAV }) {
             calendar.source = source
+        } else if let source = store.defaultCalendarForNewEvents?.source {
+            calendar.source = source
+        } else if let source = store.sources.first {
+            calendar.source = source
         } else {
-            calendar.source = store.defaultCalendarForNewEvents?.source
+            print("No calendar source available — cannot create 考勤 calendar")
+            return nil
         }
 
         do {
