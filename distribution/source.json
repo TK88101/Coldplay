@@ -17,9 +17,9 @@
       "versions": [
         {
           "version": "1.4",
-          "buildVersion": "5",
+          "buildVersion": "6",
           "date": "2026-04-12T00:00:00Z",
-          "localizedDescription": "新增每日打卡提醒(12:00本地通知)；已打卡自動取消提醒；通知權限管理；設定頁提醒開關",
+          "localizedDescription": "智能打卡提醒(12:00)；已打卡/Siri打卡自動取消；補打歷史不影響今天提醒；通知權限管理；設定頁提醒開關",
           "downloadURL": "https://github.com/TK88101/Coldplay/releases/download/v1.4/Coldplay.ipa",
           "size": 2300000,
           "minOSVersion": "26.0"

@@ -20,7 +20,7 @@
 - **多语言** — 支持繁體中文 / 日本語，在设置中切换，日期格式同步跟随
 - **CSV 自动备份** — 每次打卡自动按月保存 CSV 到「文件」App > Coldplay
 - **CSV 手动导出** — 设置中可随时导出完整记录
-- **每日提醒** — 12:00 推送通知"今天上班吗？"
+- **智能打卡提醒** — 每天 12:00 本地通知提醒打卡；已打卡自动取消提醒（含 Siri 打卡）；补打历史日期不影响今天提醒；设置中可开关，预设开启
 - **Siri 语音** — "用 Coldplay 记录上班" / "用 Coldplay 记录休息"
 - **Confetti 特效** — 打卡成功后纸花庆祝动画
 - **SideStore 兼容** — 可打包 .ipa 导入 SideStore 自动续签，免去每周重装。支持通过源 URL 一键安装和自动更新
@@ -77,18 +77,18 @@ xcodebuild -scheme Coldplay -sdk iphonesimulator26.2 SYMROOT=/tmp/ColdplayBuild 
 
 ```
 Coldplay/
-├── App/ColdplayApp.swift              # 入口，注册通知，注入环境
+├── App/ColdplayApp.swift              # 入口，注入环境
 ├── Models/
 │   ├── AttendanceRecord.swift         # 数据模型
 │   └── AppLanguage.swift              # 语言枚举 + LocalizationManager
 ├── Services/
 │   ├── CalendarService.swift          # EventKit 日历创建/事件管理
 │   ├── PersistenceService.swift       # JSON 读写 + CSV 导出/自动备份
-│   └── NotificationService.swift      # 每日 12:00 提醒
+│   └── NotificationService.swift      # 智能打卡提醒（排程/取消/權限/開關）
 ├── Store/AttendanceStore.swift        # @Observable 单例，核心逻辑
 ├── Views/
 │   ├── ContentView.swift              # 主界面 (Liquid Glass)
-│   └── SettingsView.swift             # 语言切换 + CSV 导出
+│   └── SettingsView.swift             # 提醒开关 + 语言切换 + CSV 导出
 └── Intents/                           # Siri 快捷指令
     ├── MarkWorkIntent.swift
     ├── MarkRestIntent.swift
