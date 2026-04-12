@@ -70,6 +70,9 @@ final class AttendanceStore {
         persistence.save(records)
         persistence.autoBackup(records)
 
+        // 打卡后取消当天提醒
+        NotificationService.shared.cancelReminder()
+
         // 同步到日历（首次会弹出权限请求）
         return await calendar.syncRecord(record)
     }

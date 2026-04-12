@@ -350,6 +350,50 @@ final class LocalizationManager {
         }
     }
 
+    // MARK: - Notification
+
+    var reminderTitle: String {
+        switch language {
+        case .zhHant: return "考勤提醒"
+        case .ja: return "勤怠リマインダー"
+        }
+    }
+
+    var reminderBody: String {
+        switch language {
+        case .zhHant: return "今天還沒有打卡，記得打卡喔！"
+        case .ja: return "今日はまだ打刻していません。忘れずに打刻してください！"
+        }
+    }
+
+    var notificationPermissionTitle: String {
+        switch language {
+        case .zhHant: return "需要通知權限"
+        case .ja: return "通知へのアクセスが必要です"
+        }
+    }
+
+    var notificationPermissionMessage: String {
+        switch language {
+        case .zhHant: return "請在設定中開啟通知權限，以便在未打卡時收到提醒。"
+        case .ja: return "未打刻時にリマインダーを受け取るには、設定で通知を許可してください。"
+        }
+    }
+
+    var reminderLabel: String {
+        switch language {
+        case .zhHant: return "打卡提醒"
+        case .ja: return "打刻リマインダー"
+        }
+    }
+
+    var reminderSectionLabel: String {
+        switch language {
+        case .zhHant: return "提醒"
+        case .ja: return "リマインダー"
+        }
+    }
+
     // MARK: - 辅助
 
     func displayName(for type: AttendanceType) -> String {

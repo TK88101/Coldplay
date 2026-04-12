@@ -19,6 +19,8 @@ struct ContentView: View {
     @State private var backfillOvertimeStart = Date()
     @State private var backfillOvertimeEnd = Date()
     @State private var showCalendarPermissionAlert = false
+    @State private var showNotificationPermissionAlert = false
+    @Environment(\.scenePhase) private var scenePhase
     @Namespace private var glassNS
 
     private var todayRecord: AttendanceRecord? {
@@ -153,9 +155,33 @@ struct ContentView: View {
                 .environment(store)
         }
         .task {
-            let granted = await store.calendar.requestAccess()
-            if !granted && store.calendar.isDenied {
+            let calendarGranted = await store.calendar.requestAccess()
+            if !calendarGranted && store.calendar.isDenied {
                 showCalendarPermissionAlert = true
+            }
+
+            let notificationGranted = await NotificationService.shared.requestPermission()
+            if !notificationGranted {
+                let denied = await NotificationService.shared.checkDenied()
+                if denied {
+                    showNotificationPermissionAlert = true
+                }
+            }
+
+            let hasTodayRecord = store.record(for: Date()) != nil
+            NotificationService.shared.evaluateReminder(hasTodayRecord: hasTodayRecord)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                let hasTodayRecord = store.record(for: Date()) != nil
+                NotificationService.shared.evaluateReminder(hasTodayRecord: hasTodayRecord)
+
+                Task {
+                    let denied = await NotificationService.shared.checkDenied()
+                    if denied && NotificationService.shared.reminderEnabled {
+                        showNotificationPermissionAlert = true
+                    }
+                }
             }
         }
         .alert(loc.calendarPermissionTitle, isPresented: $showCalendarPermissionAlert) {
@@ -167,6 +193,16 @@ struct ContentView: View {
             Button(loc.cancel, role: .cancel) { }
         } message: {
             Text(loc.calendarPermissionMessage)
+        }
+        .alert(loc.notificationPermissionTitle, isPresented: $showNotificationPermissionAlert) {
+            Button(loc.openSettings) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button(loc.cancel, role: .cancel) { }
+        } message: {
+            Text(loc.notificationPermissionMessage)
         }
     }
 

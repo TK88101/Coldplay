@@ -1,34 +1,73 @@
 import UserNotifications
 
-struct NotificationService {
-    /// 请求通知权限并注册每日 12:00 提醒
-    static func scheduleDailyReminder() {
-        let center = UNUserNotificationCenter.current()
+@MainActor
+final class NotificationService {
+    static let shared = NotificationService()
 
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-            guard granted else { return }
+    private let center = UNUserNotificationCenter.current()
+    private let identifier = "coldplay.attendance.reminder"
 
-            // 移除旧的提醒，防止重复
-            center.removePendingNotificationRequests(withIdentifiers: ["daily-reminder"])
+    private init() {}
 
-            let content = UNMutableNotificationContent()
-            content.title = "考勤助手"
-            content.body = "今天上班吗？"
-            content.sound = .default
+    // MARK: - Permission
 
-            // 每天 12:00 触发（使用设备本地时区，即 JST）
-            var dateComponents = DateComponents()
-            dateComponents.hour = 12
-            dateComponents.minute = 0
-            let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+    func requestPermission() async -> Bool {
+        do {
+            return try await center.requestAuthorization(options: [.alert, .sound])
+        } catch {
+            return false
+        }
+    }
 
-            let request = UNNotificationRequest(
-                identifier: "daily-reminder",
-                content: content,
-                trigger: trigger
-            )
+    func checkDenied() async -> Bool {
+        let settings = await center.notificationSettings()
+        return settings.authorizationStatus == .denied
+    }
 
-            center.add(request)
+    // MARK: - Reminder toggle
+
+    var reminderEnabled: Bool {
+        get { UserDefaults.standard.object(forKey: "attendanceReminderEnabled") as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: "attendanceReminderEnabled") }
+    }
+
+    // MARK: - Scheduling
+
+    func scheduleReminder() {
+        let loc = LocalizationManager.shared
+        let content = UNMutableNotificationContent()
+        content.title = loc.reminderTitle
+        content.body = loc.reminderBody
+        content.sound = .default
+
+        let trigger = UNCalendarNotificationTrigger(
+            dateMatching: DateComponents(hour: 12, minute: 0),
+            repeats: true
+        )
+
+        let request = UNNotificationRequest(
+            identifier: identifier,
+            content: content,
+            trigger: trigger
+        )
+
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        center.add(request)
+    }
+
+    func cancelReminder() {
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+    }
+
+    func evaluateReminder(hasTodayRecord: Bool) {
+        guard reminderEnabled else {
+            cancelReminder()
+            return
+        }
+        if hasTodayRecord {
+            cancelReminder()
+        } else {
+            scheduleReminder()
         }
     }
 }

@@ -4,11 +4,25 @@ struct SettingsView: View {
     @Environment(LocalizationManager.self) private var loc
     @Environment(AttendanceStore.self) private var store
     @Environment(\.dismiss) private var dismiss
+    @State private var reminderEnabled = NotificationService.shared.reminderEnabled
 
     var body: some View {
         @Bindable var loc = loc
         NavigationStack {
             List {
+                Section(loc.reminderSectionLabel) {
+                    Toggle(loc.reminderLabel, isOn: $reminderEnabled)
+                        .onChange(of: reminderEnabled) { _, newValue in
+                            NotificationService.shared.reminderEnabled = newValue
+                            if newValue {
+                                let hasTodayRecord = store.record(for: Date()) != nil
+                                NotificationService.shared.evaluateReminder(hasTodayRecord: hasTodayRecord)
+                            } else {
+                                NotificationService.shared.cancelReminder()
+                            }
+                        }
+                }
+
                 Section(loc.languageLabel) {
                     ForEach(AppLanguage.allCases, id: \.self) { lang in
                         Button {
