@@ -1,0 +1,118 @@
+{
+  "project": "Coldplay",
+  "branchName": "ralph/attendance-reminder",
+  "description": "Daily Attendance Reminder - Smart 12:00 local notification that only fires when user hasn't clocked in yet",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create NotificationService with scheduling logic",
+      "description": "As a developer, I need a NotificationService that encapsulates all UNUserNotificationCenter logic for scheduling and cancelling the daily attendance reminder.",
+      "acceptanceCriteria": [
+        "Coldplay/Services/NotificationService.swift exists with a @MainActor singleton NotificationService.shared",
+        "Has method requestPermission() that calls UNUserNotificationCenter.requestAuthorization(options: [.alert, .sound])",
+        "Has async method checkDenied() that checks for .denied authorization status",
+        "Has method scheduleReminder() that creates a UNCalendarNotificationTrigger at hour:12 minute:0 with repeats:true",
+        "Has method cancelReminder() that removes pending notification with identifier 'coldplay.attendance.reminder'",
+        "Has method evaluateReminder(hasTodayRecord: Bool) that schedules or cancels based on reminderEnabled and hasTodayRecord",
+        "Has var reminderEnabled backed by UserDefaults with key 'attendanceReminderEnabled' default true",
+        "Notification title and body use LocalizationManager for Traditional Chinese and Japanese strings",
+        "Build succeeds with xcodebuild -scheme Coldplay -sdk iphonesimulator26.2 SYMROOT=/tmp/ColdplayBuild build"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Pattern after CalendarService singleton. Identifier: 'coldplay.attendance.reminder'. Remove old static scheduleDailyReminder() call from ColdplayApp.init() if present."
+    },
+    {
+      "id": "US-002",
+      "title": "Add localized strings for notification content and permission alert",
+      "description": "As a user, I want all notification-related text in my chosen language (Traditional Chinese or Japanese).",
+      "acceptanceCriteria": [
+        "LocalizationManager has reminderTitle property (zh: '考勤提醒', ja: '勤怠リマインダー')",
+        "LocalizationManager has reminderBody property (zh: '今天還沒有打卡，記得打卡喔！', ja: '今日はまだ打刻していません。忘れずに打刻してください！')",
+        "LocalizationManager has notificationPermissionTitle property (zh: '需要通知權限', ja: '通知へのアクセスが必要です')",
+        "LocalizationManager has notificationPermissionMessage property",
+        "LocalizationManager has reminderLabel property for settings toggle (zh: '打卡提醒', ja: '打刻リマインダー')",
+        "LocalizationManager has reminderSectionLabel property for settings section (zh: '提醒', ja: 'リマインダー')",
+        "Build succeeds with xcodebuild -scheme Coldplay -sdk iphonesimulator26.2 SYMROOT=/tmp/ColdplayBuild build"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Follow existing pattern in LocalizationManager: computed properties with switch language { case .zhHant: ... case .ja: ... }"
+    },
+    {
+      "id": "US-003",
+      "title": "Request notification permission on app launch",
+      "description": "As a user, I want the app to request notification permission at launch so reminders can work.",
+      "acceptanceCriteria": [
+        "In ContentView.task, NotificationService.shared.requestPermission() is called alongside existing calendar permission request",
+        "After permission request, evaluateReminder is called with current today record status",
+        "Build succeeds with xcodebuild -scheme Coldplay -sdk iphonesimulator26.2 SYMROOT=/tmp/ColdplayBuild build"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Add to existing .task modifier in ContentView that already handles calendar permission."
+    },
+    {
+      "id": "US-004",
+      "title": "Handle denied notification permission with Settings redirect",
+      "description": "As a user who denied notification permission, I want to be guided to enable it in iOS Settings.",
+      "acceptanceCriteria": [
+        "ContentView has @State var showNotificationPermissionAlert",
+        "After requestPermission fails, checks checkDenied() and sets alert state",
+        "On scenePhase change to .active, re-checks denied status when reminderEnabled",
+        "Alert shows localized title and message from notificationPermissionTitle/Message",
+        "Alert has button opening UIApplication.openSettingsURLString",
+        "Alert pattern matches existing calendar permission denied alert",
+        "Build succeeds with xcodebuild -scheme Coldplay -sdk iphonesimulator26.2 SYMROOT=/tmp/ColdplayBuild build"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Mirror the existing showCalendarPermissionAlert pattern in ContentView. Requires @Environment(\\.scenePhase)."
+    },
+    {
+      "id": "US-005",
+      "title": "Cancel reminder when attendance is marked",
+      "description": "As a user, I don't want to receive a reminder on days I've already clocked in.",
+      "acceptanceCriteria": [
+        "AttendanceStore.mark() calls NotificationService.shared.cancelReminder() after saving the record",
+        "Siri Intents (MarkWorkIntent, MarkRestIntent) coverage is automatic because they go through AttendanceStore.shared",
+        "markOvertime() does NOT cancel the reminder (overtime is independent of daily attendance)",
+        "Build succeeds with xcodebuild -scheme Coldplay -sdk iphonesimulator26.2 SYMROOT=/tmp/ColdplayBuild build"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Add one line in AttendanceStore.mark() before the calendar sync call."
+    },
+    {
+      "id": "US-006",
+      "title": "Evaluate reminder state on app launch and foreground resume",
+      "description": "As a user, I want the app to correctly schedule or cancel reminders whenever I open the app or return to it.",
+      "acceptanceCriteria": [
+        "ContentView.task calls evaluateReminder(hasTodayRecord:) after permission request",
+        "ContentView has .onChange(of: scenePhase) that calls evaluateReminder on .active",
+        "evaluateReminder checks store.record(for: Date()) != nil for today's record",
+        "Build succeeds with xcodebuild -scheme Coldplay -sdk iphonesimulator26.2 SYMROOT=/tmp/ColdplayBuild build"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Requires @Environment(\\.scenePhase) private var scenePhase in ContentView."
+    },
+    {
+      "id": "US-007",
+      "title": "Add reminder toggle to SettingsView",
+      "description": "As a user, I want a toggle in Settings to enable or disable the attendance reminder.",
+      "acceptanceCriteria": [
+        "SettingsView has a new Section with localized reminderSectionLabel",
+        "Section contains Toggle with localized reminderLabel",
+        "Toggle state backed by @State initialized from NotificationService.shared.reminderEnabled",
+        "onChange of toggle syncs to NotificationService.shared.reminderEnabled",
+        "When toggled off, cancelReminder() is called immediately",
+        "When toggled on, evaluateReminder(hasTodayRecord:) is called to re-schedule if needed",
+        "Build succeeds with xcodebuild -scheme Coldplay -sdk iphonesimulator26.2 SYMROOT=/tmp/ColdplayBuild build"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Add new Section above existing language Section in SettingsView List."
+    }
+  ]
+}

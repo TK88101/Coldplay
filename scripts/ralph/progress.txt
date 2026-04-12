@@ -1,0 +1,20 @@
+# Ralph Progress Log
+Started: Sat Apr 12 13:20:00 JST 2026
+---
+
+## 2026-04-12 13:30 JST - US-001 through US-007 (ALL STORIES)
+- All 7 user stories were already implemented in a prior session
+- Verified by code inspection and successful build
+- **US-001**: NotificationService.swift — @MainActor singleton with requestPermission(), checkDenied(), scheduleReminder() (UNCalendarNotificationTrigger at 12:00 repeating), cancelReminder(), evaluateReminder(hasTodayRecord:), reminderEnabled (UserDefaults "attendanceReminderEnabled" default true)
+- **US-002**: AppLanguage.swift — reminderTitle, reminderBody, notificationPermissionTitle, notificationPermissionMessage, reminderLabel, reminderSectionLabel (all with zh-Hant + ja)
+- **US-003**: ContentView.task — calls requestPermission() + evaluateReminder(hasTodayRecord:)
+- **US-004**: ContentView — showNotificationPermissionAlert @State, checkDenied() in .task and .onChange(of: scenePhase), alert with Settings redirect matching calendar pattern
+- **US-005**: AttendanceStore.mark() — calls NotificationService.shared.cancelReminder() after save
+- **US-006**: ContentView — .task calls evaluateReminder, .onChange(of: scenePhase) .active calls evaluateReminder + denied check
+- **US-007**: SettingsView — reminder Section with Toggle, onChange syncs to NotificationService, toggling off calls cancelReminder(), toggling on calls evaluateReminder()
+- Files verified: NotificationService.swift, AppLanguage.swift, ContentView.swift, AttendanceStore.swift, SettingsView.swift, ColdplayApp.swift
+- Build: ** BUILD SUCCEEDED **
+- **Learnings for future iterations:**
+  - All implementation was done in a prior session; this iteration only needed verification
+  - The PRD stories were not marked as passed despite the code being complete
+---
