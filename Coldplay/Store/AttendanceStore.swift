@@ -70,8 +70,10 @@ final class AttendanceStore {
         persistence.save(records)
         persistence.autoBackup(records)
 
-        // 打卡后取消当天提醒
-        NotificationService.shared.cancelReminder()
+        // 只有标记今天时才取消提醒（补打历史日期不影响今天的提醒）
+        if Calendar.current.isDateInToday(normalized) {
+            NotificationService.shared.evaluateReminder(hasTodayRecord: true)
+        }
 
         // 同步到日历（首次会弹出权限请求）
         return await calendar.syncRecord(record)

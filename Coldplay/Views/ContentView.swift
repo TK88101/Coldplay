@@ -160,11 +160,13 @@ struct ContentView: View {
                 showCalendarPermissionAlert = true
             }
 
-            let notificationGranted = await NotificationService.shared.requestPermission()
-            if !notificationGranted {
-                let denied = await NotificationService.shared.checkDenied()
-                if denied {
-                    showNotificationPermissionAlert = true
+            if NotificationService.shared.reminderEnabled {
+                let notificationGranted = await NotificationService.shared.requestPermission()
+                if !notificationGranted {
+                    let denied = await NotificationService.shared.checkDenied()
+                    if denied {
+                        showNotificationPermissionAlert = true
+                    }
                 }
             }
 
@@ -176,10 +178,12 @@ struct ContentView: View {
                 let hasTodayRecord = store.record(for: Date()) != nil
                 NotificationService.shared.evaluateReminder(hasTodayRecord: hasTodayRecord)
 
-                Task {
-                    let denied = await NotificationService.shared.checkDenied()
-                    if denied && NotificationService.shared.reminderEnabled {
-                        showNotificationPermissionAlert = true
+                if NotificationService.shared.reminderEnabled {
+                    Task {
+                        let denied = await NotificationService.shared.checkDenied()
+                        if denied {
+                            showNotificationPermissionAlert = true
+                        }
                     }
                 }
             }

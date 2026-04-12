@@ -66,8 +66,41 @@ final class NotificationService {
         }
         if hasTodayRecord {
             cancelReminder()
+            rescheduleForNextDay()
         } else {
             scheduleReminder()
         }
+    }
+
+    // MARK: - Next-day scheduling
+
+    private func rescheduleForNextDay() {
+        let loc = LocalizationManager.shared
+        let content = UNMutableNotificationContent()
+        content.title = loc.reminderTitle
+        content.body = loc.reminderBody
+        content.sound = .default
+
+        let hour = Calendar.current.component(.hour, from: Date())
+        let trigger: UNCalendarNotificationTrigger
+        if hour < 12 {
+            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+            var comps = Calendar.current.dateComponents([.year, .month, .day], from: tomorrow)
+            comps.hour = 12
+            comps.minute = 0
+            trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+        } else {
+            trigger = UNCalendarNotificationTrigger(
+                dateMatching: DateComponents(hour: 12, minute: 0),
+                repeats: true
+            )
+        }
+
+        let request = UNNotificationRequest(
+            identifier: identifier,
+            content: content,
+            trigger: trigger
+        )
+        center.add(request)
     }
 }
