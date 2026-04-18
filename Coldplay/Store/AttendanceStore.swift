@@ -82,12 +82,22 @@ final class AttendanceStore {
     // MARK: - 加班
 
     /// 记录加班并写入"加班"日历，返回日历是否写入成功
+    /// Overtime implies work: if the day has no attendance or is rest/annualLeave/compensatoryRest,
+    /// it is promoted/overridden to .work. An existing .work record is preserved as-is.
     @discardableResult
     func markOvertime(date: Date = Date(), startTime: Date, endTime: Date) async -> Bool {
         let normalized = Calendar.current.startOfDay(for: date)
-        let record = OvertimeRecord(date: normalized, startTime: startTime, endTime: endTime)
-        overtimeRecords.append(record)
+        let overtime = OvertimeRecord(date: normalized, startTime: startTime, endTime: endTime)
+        overtimeRecords.append(overtime)
         persistence.saveOvertime(overtimeRecords)
+
+        let currentType = record(for: normalized)?.type
+        if currentType != .work {
+            _ = await mark(date: normalized, type: .work)
+        } else if Calendar.current.isDateInToday(normalized) {
+            NotificationService.shared.evaluateReminder(hasTodayRecord: true)
+        }
+
         return await calendar.syncOvertime(date: normalized, startTime: startTime, endTime: endTime)
     }
 
@@ -116,6 +126,20 @@ final class AttendanceStore {
         let overtimeDays: Int          // overtimeHours / 8, floored
         let remainingLeave: Int        // (10 + overtimeDays) - annualLeaveDays - compensatoryRestDays
         let totalHours: Double
+
+        /// Display string for overtime:
+        /// - Exact multiples of 8h render as whole days ("1 天", "2 天").
+        /// - Everything else renders as hours ("1h", "2.5h", "9h", "15h").
+        /// This guarantees the day label never appears until a full 8h is actually accrued.
+        func overtimeDisplay(daysUnit: String) -> String {
+            if overtimeHours > 0 && overtimeHours.truncatingRemainder(dividingBy: 8) == 0 {
+                return "\(Int(overtimeHours / 8.0)) \(daysUnit)"
+            }
+            if overtimeHours.truncatingRemainder(dividingBy: 1) == 0 {
+                return "\(Int(overtimeHours))h"
+            }
+            return String(format: "%.1fh", overtimeHours)
+        }
     }
 
     /// Fiscal year runs Apr 1 – Mar 31. Returns the year of the April start.

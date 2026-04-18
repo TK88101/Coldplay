@@ -17,11 +17,11 @@
       "versions": [
         {
           "version": "1.4",
-          "buildVersion": "6",
-          "date": "2026-04-12T00:00:00Z",
-          "localizedDescription": "智能打卡提醒(12:00)；已打卡/Siri打卡自動取消；補打歷史不影響今天提醒；通知權限管理；設定頁提醒開關",
+          "buildVersion": "7",
+          "date": "2026-04-18T00:00:00Z",
+          "localizedDescription": "加班即視為上班：打加班卡自動補上班（休息/年假/補休日會覆蓋為上班，剩餘年假響應回補）；加班時數顯示優化（1h=1h、8h=1天、9h=9h、16h=2天）；修復打加班後中午提醒未取消的問題",
           "downloadURL": "https://github.com/TK88101/Coldplay/releases/download/v1.4/Coldplay.ipa",
-          "size": 2300000,
+          "size": 2500000,
           "minOSVersion": "26.0"
         },
         {

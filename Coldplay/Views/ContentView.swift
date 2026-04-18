@@ -540,7 +540,7 @@ struct ContentView: View {
                 Spacer()
                 Divider().frame(height: 24)
                 Spacer()
-                statItem(label: loc.overtimeDaysLabel, value: stats.overtimeDays > 0 ? "\(stats.overtimeDays) \(loc.daysUnit)" : "\(Int(stats.overtimeHours))h", color: .red)
+                statItem(label: loc.overtimeDaysLabel, value: stats.overtimeDisplay(daysUnit: loc.daysUnit), color: .red)
                 Spacer()
                 Divider().frame(height: 24)
                 Spacer()
@@ -590,7 +590,7 @@ struct ContentView: View {
                                 }
                                 Spacer()
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Label("\(s.overtimeDays) \(loc.daysUnit)", systemImage: "moon.fill")
+                                    Label(s.overtimeDisplay(daysUnit: loc.daysUnit), systemImage: "moon.fill")
                                         .foregroundStyle(.red)
                                     Text(loc.overtimeDaysLabel)
                                         .font(.caption2)
