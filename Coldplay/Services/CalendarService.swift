@@ -179,6 +179,15 @@ final class CalendarService {
         store.calendars(for: .event).first(where: { $0.title == Self.annualLeaveCalendarTitle })
     }
 
+    func removeOvertimeEvents(on date: Date) async {
+        if !hasAccess {
+            let granted = await requestAccess()
+            guard granted else { return }
+        }
+        guard let calendar = overtimeCalendar() else { return }
+        removeEvents(on: date, in: calendar)
+    }
+
     /// 在"加班"日历中创建加班事件，返回是否成功
     @discardableResult
     func syncOvertime(date: Date, startTime: Date, endTime: Date) async -> Bool {

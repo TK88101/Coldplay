@@ -84,9 +84,17 @@ final class AttendanceStore {
     /// 记录加班并写入"加班"日历，返回日历是否写入成功
     /// Overtime implies work: if the day has no attendance or is rest/annualLeave/compensatoryRest,
     /// it is promoted/overridden to .work. An existing .work record is preserved as-is.
+    /// When replaceExisting is true, any existing overtime records and calendar events for that day
+    /// are cleared before appending the new one.
     @discardableResult
-    func markOvertime(date: Date = Date(), startTime: Date, endTime: Date) async -> Bool {
+    func markOvertime(date: Date = Date(), startTime: Date, endTime: Date, replaceExisting: Bool = false) async -> Bool {
         let normalized = Calendar.current.startOfDay(for: date)
+
+        if replaceExisting {
+            overtimeRecords.removeAll { Calendar.current.startOfDay(for: $0.date) == normalized }
+            await calendar.removeOvertimeEvents(on: normalized)
+        }
+
         let overtime = OvertimeRecord(date: normalized, startTime: startTime, endTime: endTime)
         overtimeRecords.append(overtime)
         persistence.saveOvertime(overtimeRecords)
@@ -99,6 +107,18 @@ final class AttendanceStore {
         }
 
         return await calendar.syncOvertime(date: normalized, startTime: startTime, endTime: endTime)
+    }
+
+    func hasOvertime(on date: Date) -> Bool {
+        let normalized = Calendar.current.startOfDay(for: date)
+        return overtimeRecords.contains { Calendar.current.startOfDay(for: $0.date) == normalized }
+    }
+
+    func overtimeHours(on date: Date) -> Double {
+        let normalized = Calendar.current.startOfDay(for: date)
+        return overtimeRecords
+            .filter { Calendar.current.startOfDay(for: $0.date) == normalized }
+            .reduce(0.0) { $0 + $1.endTime.timeIntervalSince($1.startTime) / 3600.0 }
     }
 
     // MARK: - 查询

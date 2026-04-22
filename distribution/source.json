@@ -17,6 +17,15 @@
       "versions": [
         {
           "version": "1.4",
+          "buildVersion": "8",
+          "date": "2026-04-22T00:00:00Z",
+          "localizedDescription": "修復同日重複打加班卡導致累計天數多算的問題：同日已有加班紀錄時會彈出「取代 / 累加 / 取消」三選一確認；選「取代」同步清掉該日既有的加班日曆事件，避免日曆重複。",
+          "downloadURL": "https://github.com/TK88101/Coldplay/releases/download/v1.4-build8/Coldplay.ipa",
+          "size": 2401727,
+          "minOSVersion": "26.0"
+        },
+        {
+          "version": "1.4",
           "buildVersion": "7",
           "date": "2026-04-18T00:00:00Z",
           "localizedDescription": "加班即視為上班：打加班卡自動補上班（休息/年假/補休日會覆蓋為上班，剩餘年假響應回補）；加班時數顯示優化（1h=1h、8h=1天、9h=9h、16h=2天）；修復打加班後中午提醒未取消的問題",

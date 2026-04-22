@@ -20,6 +20,8 @@ struct ContentView: View {
     @State private var backfillOvertimeEnd = Date()
     @State private var showCalendarPermissionAlert = false
     @State private var showNotificationPermissionAlert = false
+    @State private var showOvertimeConflict = false
+    @State private var pendingOvertime: (date: Date, start: Date, end: Date, fromBackfill: Bool)?
     @Environment(\.scenePhase) private var scenePhase
     @Namespace private var glassNS
 
@@ -148,6 +150,27 @@ struct ContentView: View {
                 performMark(type: .compensatoryRest)
             }
             Button(loc.cancel, role: .cancel) { }
+        }
+        .confirmationDialog(loc.overtimeExistsTitle, isPresented: $showOvertimeConflict, titleVisibility: .visible) {
+            Button(loc.overtimeReplace, role: .destructive) {
+                if let p = pendingOvertime {
+                    commitOvertime(date: p.date, start: p.start, end: p.end, replaceExisting: true, fromBackfill: p.fromBackfill)
+                }
+                pendingOvertime = nil
+            }
+            Button(loc.overtimeAppend) {
+                if let p = pendingOvertime {
+                    commitOvertime(date: p.date, start: p.start, end: p.end, replaceExisting: false, fromBackfill: p.fromBackfill)
+                }
+                pendingOvertime = nil
+            }
+            Button(loc.cancel, role: .cancel) {
+                pendingOvertime = nil
+            }
+        } message: {
+            if let p = pendingOvertime {
+                Text(loc.overtimeExistsMessage(hours: store.overtimeHours(on: p.date)))
+            }
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
@@ -443,15 +466,34 @@ struct ContentView: View {
     }
 
     private func performBackfillOvertime() {
-        Task {
-            let synced = await store.markOvertime(date: backfillDate, startTime: backfillOvertimeStart, endTime: backfillOvertimeEnd)
+        if store.hasOvertime(on: backfillDate) {
+            pendingOvertime = (backfillDate, backfillOvertimeStart, backfillOvertimeEnd, true)
             showBackfillOvertime = false
             showBackfill = false
+            showOvertimeConflict = true
+        } else {
+            commitOvertime(date: backfillDate, start: backfillOvertimeStart, end: backfillOvertimeEnd, replaceExisting: false, fromBackfill: true)
+        }
+    }
+
+    private func commitOvertime(date: Date, start: Date, end: Date, replaceExisting: Bool, fromBackfill: Bool) {
+        if fromBackfill {
+            showBackfillOvertime = false
+            showBackfill = false
+        } else {
+            showOvertime = false
+        }
+        Task {
+            let synced = await store.markOvertime(date: date, startTime: start, endTime: end, replaceExisting: replaceExisting)
             withAnimation(.bouncy) {
                 confettiTrigger += 1
             }
-            let dateStr = backfillDate.formatted(.dateTime.month(.abbreviated).day().locale(loc.language.locale))
-            toastMessage = synced ? loc.backfillWritten(date: dateStr, label: loc.overtime) : loc.backfillRecorded(date: dateStr, label: loc.overtime)
+            if fromBackfill {
+                let dateStr = date.formatted(.dateTime.month(.abbreviated).day().locale(loc.language.locale))
+                toastMessage = synced ? loc.backfillWritten(date: dateStr, label: loc.overtime) : loc.backfillRecorded(date: dateStr, label: loc.overtime)
+            } else {
+                toastMessage = synced ? loc.writtenToCalendar(loc.overtime) : loc.recorded(loc.overtime)
+            }
             try? await Task.sleep(for: .seconds(2))
             toastMessage = nil
         }
@@ -516,15 +558,13 @@ struct ContentView: View {
     }
 
     private func performOvertime() {
-        Task {
-            let synced = await store.markOvertime(startTime: overtimeStart, endTime: overtimeEnd)
+        let today = Date()
+        if store.hasOvertime(on: today) {
+            pendingOvertime = (today, overtimeStart, overtimeEnd, false)
             showOvertime = false
-            withAnimation(.bouncy) {
-                confettiTrigger += 1
-            }
-            toastMessage = synced ? loc.writtenToCalendar(loc.overtime) : loc.recorded(loc.overtime)
-            try? await Task.sleep(for: .seconds(2))
-            toastMessage = nil
+            showOvertimeConflict = true
+        } else {
+            commitOvertime(date: today, start: overtimeStart, end: overtimeEnd, replaceExisting: false, fromBackfill: false)
         }
     }
 

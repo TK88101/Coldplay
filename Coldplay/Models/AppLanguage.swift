@@ -281,6 +281,40 @@ final class LocalizationManager {
         }
     }
 
+    var overtimeExistsTitle: String {
+        switch language {
+        case .zhHant: return "這天已有加班紀錄"
+        case .ja: return "この日は既に残業記録があります"
+        }
+    }
+
+    func overtimeExistsMessage(hours: Double) -> String {
+        let formatted: String
+        if hours.truncatingRemainder(dividingBy: 1) == 0 {
+            formatted = "\(Int(hours))"
+        } else {
+            formatted = String(format: "%.1f", hours)
+        }
+        switch language {
+        case .zhHant: return "已累計 \(formatted)h 的加班，要取代還是繼續累加？"
+        case .ja: return "既に \(formatted)h の残業が記録されています。上書きしますか、追加しますか？"
+        }
+    }
+
+    var overtimeReplace: String {
+        switch language {
+        case .zhHant: return "取代"
+        case .ja: return "上書き"
+        }
+    }
+
+    var overtimeAppend: String {
+        switch language {
+        case .zhHant: return "累加"
+        case .ja: return "追加"
+        }
+    }
+
     // MARK: - 设置页
 
     var languageLabel: String {
