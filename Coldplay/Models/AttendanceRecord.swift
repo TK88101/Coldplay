@@ -48,19 +48,22 @@ struct OvertimeRecord: Codable, Identifiable {
     let startTime: Date
     let endTime: Date
     let createdAt: Date
+    var calendarEventID: String?
 
     init(
         id: UUID = UUID(),
         date: Date,
         startTime: Date,
         endTime: Date,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        calendarEventID: String? = nil
     ) {
         self.id = id
         self.date = date
         self.startTime = startTime
         self.endTime = endTime
         self.createdAt = createdAt
+        self.calendarEventID = calendarEventID
     }
 
     var hours: Double {

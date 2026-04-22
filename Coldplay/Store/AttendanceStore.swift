@@ -95,7 +95,7 @@ final class AttendanceStore {
             await calendar.removeOvertimeEvents(on: normalized)
         }
 
-        let overtime = OvertimeRecord(date: normalized, startTime: startTime, endTime: endTime)
+        var overtime = OvertimeRecord(date: normalized, startTime: startTime, endTime: endTime)
         overtimeRecords.append(overtime)
         persistence.saveOvertime(overtimeRecords)
 
@@ -106,7 +106,13 @@ final class AttendanceStore {
             NotificationService.shared.evaluateReminder(hasTodayRecord: true)
         }
 
-        return await calendar.syncOvertime(date: normalized, startTime: startTime, endTime: endTime)
+        let eventID = await calendar.syncOvertime(date: normalized, startTime: startTime, endTime: endTime)
+        if let eventID, let index = overtimeRecords.firstIndex(where: { $0.id == overtime.id }) {
+            overtime.calendarEventID = eventID
+            overtimeRecords[index] = overtime
+            persistence.saveOvertime(overtimeRecords)
+        }
+        return eventID != nil
     }
 
     func hasOvertime(on date: Date) -> Bool {
@@ -119,6 +125,24 @@ final class AttendanceStore {
         return overtimeRecords
             .filter { Calendar.current.startOfDay(for: $0.date) == normalized }
             .reduce(0.0) { $0 + $1.endTime.timeIntervalSince($1.startTime) / 3600.0 }
+    }
+
+    /// Removes any overtime record whose stored calendar event has been deleted from the user's calendar.
+    /// Only records with a known calendarEventID are reconciled — legacy records without an ID are left alone.
+    /// Returns the number of orphaned records that were removed.
+    @discardableResult
+    func reconcileOvertimeWithCalendar() async -> Int {
+        guard calendar.hasAccess else { return 0 }
+        let orphanIDs = overtimeRecords
+            .filter { record in
+                guard let eventID = record.calendarEventID else { return false }
+                return !calendar.overtimeEventExists(eventID: eventID)
+            }
+            .map(\.id)
+        guard !orphanIDs.isEmpty else { return 0 }
+        overtimeRecords.removeAll { orphanIDs.contains($0.id) }
+        persistence.saveOvertime(overtimeRecords)
+        return orphanIDs.count
     }
 
     // MARK: - 查询

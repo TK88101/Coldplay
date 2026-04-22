@@ -188,17 +188,23 @@ final class CalendarService {
         removeEvents(on: date, in: calendar)
     }
 
-    /// 在"加班"日历中创建加班事件，返回是否成功
-    @discardableResult
-    func syncOvertime(date: Date, startTime: Date, endTime: Date) async -> Bool {
+    /// Returns true if the given calendar event identifier still exists in the user's calendar.
+    /// If access has not been granted, returns true (treat as unknown — do not remove local data).
+    func overtimeEventExists(eventID: String) -> Bool {
+        guard hasAccess else { return true }
+        return store.event(withIdentifier: eventID) != nil
+    }
+
+    /// 在"加班"日历中创建加班事件，返回事件的 identifier（失败时为 nil）
+    func syncOvertime(date: Date, startTime: Date, endTime: Date) async -> String? {
         if !hasAccess {
             let granted = await requestAccess()
-            guard granted else { return false }
+            guard granted else { return nil }
         }
 
         guard let calendar = overtimeCalendar() else {
             print("未找到「加班」日历，请先在系统日历中创建")
-            return false
+            return nil
         }
 
         let event = EKEvent(eventStore: store)
@@ -210,10 +216,10 @@ final class CalendarService {
 
         do {
             try store.save(event, span: .thisEvent)
-            return true
+            return event.eventIdentifier
         } catch {
             print("Failed to save overtime event: \(error)")
-            return false
+            return nil
         }
     }
 

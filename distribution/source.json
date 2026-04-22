@@ -17,6 +17,15 @@
       "versions": [
         {
           "version": "1.4",
+          "buildVersion": "9",
+          "date": "2026-04-22T00:00:00Z",
+          "localizedDescription": "補完加班雙向同步：在日曆中刪除加班事件後，app 下次啟動或回前景時會自動移除對應的加班紀錄並顯示提示。僅適用此版之後新建的加班（會存事件 ID），既有資料不動。",
+          "downloadURL": "https://github.com/TK88101/Coldplay/releases/download/v1.4-build9/Coldplay.ipa",
+          "size": 2407713,
+          "minOSVersion": "26.0"
+        },
+        {
+          "version": "1.4",
           "buildVersion": "8",
           "date": "2026-04-22T00:00:00Z",
           "localizedDescription": "修復同日重複打加班卡導致累計天數多算的問題：同日已有加班紀錄時會彈出「取代 / 累加 / 取消」三選一確認；選「取代」同步清掉該日既有的加班日曆事件，避免日曆重複。",

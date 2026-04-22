@@ -195,6 +195,8 @@ struct ContentView: View {
 
             let hasTodayRecord = store.record(for: Date()) != nil
             NotificationService.shared.evaluateReminder(hasTodayRecord: hasTodayRecord)
+
+            await reconcileOvertimeAndNotify()
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
@@ -209,6 +211,8 @@ struct ContentView: View {
                         }
                     }
                 }
+
+                Task { await reconcileOvertimeAndNotify() }
             }
         }
         .alert(loc.calendarPermissionTitle, isPresented: $showCalendarPermissionAlert) {
@@ -555,6 +559,14 @@ struct ContentView: View {
                 }
             }
         }
+    }
+
+    private func reconcileOvertimeAndNotify() async {
+        let removed = await store.reconcileOvertimeWithCalendar()
+        guard removed > 0 else { return }
+        toastMessage = loc.overtimeReconciled(count: removed)
+        try? await Task.sleep(for: .seconds(2))
+        toastMessage = nil
     }
 
     private func performOvertime() {

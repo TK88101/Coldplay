@@ -315,6 +315,13 @@ final class LocalizationManager {
         }
     }
 
+    func overtimeReconciled(count: Int) -> String {
+        switch language {
+        case .zhHant: return "已同步移除 \(count) 筆在日曆中刪除的加班"
+        case .ja: return "カレンダーから削除された残業 \(count) 件を同期しました"
+        }
+    }
+
     // MARK: - 设置页
 
     var languageLabel: String {
